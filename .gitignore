@@ -1,0 +1,4 @@
+/.gitignore
+vendor
+storage/app
+storage/logs
