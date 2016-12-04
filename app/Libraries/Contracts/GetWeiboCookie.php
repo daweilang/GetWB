@@ -77,6 +77,11 @@ class GetWeiboCookie
 	{
 		return $this->sp;	
 	}
+
+	public function getSu()
+	{
+		return $this->su;	
+	}
 	
 	
 	/**
@@ -93,17 +98,24 @@ class GetWeiboCookie
 		$preInfo = $preLogin->loginPre($preLoginUrl);
 		preg_match('/sinaSSOController.preloginCallBack\((.*)\)/', $preInfo, $preArr);
 		$jsonArr = json_decode($preArr[1], true);
-		if(empty($jsonArr)){
+		
+		if(($jsonArr['retcode'] != 0)){
+			throw new \Exception("登陆失败");
 			return false;
 		}else{
-			$this->preParam = [
-					'servertime' => $jsonArr['servertime'],
-					'nonce' => $jsonArr['nonce'],
-					'pubkey' => $jsonArr['pubkey'],
-					//登录使用参数
-					'rsakv' => $jsonArr['rsakv'],
-			];
-			return $this->getEncodePwd();
+// 			$this->preParam = [
+// 					'servertime' => $jsonArr['servertime'],
+// 					'nonce' => $jsonArr['nonce'],
+// 					'pubkey' => $jsonArr['pubkey'],
+// 					//登录使用参数
+// 					'rsakv' => $jsonArr['rsakv'],
+// 					'pcid' => $jsonArr['pcid'],
+// 			];
+// 			return $this->getEncodePwd();
+			//采用临时文件存储方式存储预登陆所需文件
+			$savePath = 'wbcookie/prelogin.config.inc';
+			$bytes = Storage::put($savePath, json_encode($jsonArr));
+			return true;
 		}
 	}
 	
@@ -138,6 +150,7 @@ class GetWeiboCookie
 		$this->loginData['nonce'] = $param['nonce'];
 		$this->loginData['rsakv'] = $param['rsakv'];
 		$this->loginData['door'] = $param['door'];
+		$this->loginData['pcid'] = $param['pcid'];
 		
 		include_once app_path().'/Libraries/function/helpers.php';
 
@@ -151,12 +164,9 @@ class GetWeiboCookie
 		//登录新浪通行证
 		$sinaLoginUrl = sprintf($this->config['SinaLoginUrl'], dw_microtime());
 		$login_arr = json_decode($wbLogin->loginSina($sinaLoginUrl, $this->loginData, $cookieSina), true);
-		
-		var_dump($login_arr);
-		exit;
-		
-		if(empty($login_arr)){
-			throw new \Exception("新浪通行证未能通过");
+
+		if($login_arr['retcode'] != 0){
+			throw new \Exception($login_arr['reason']);
 			return false;
 		}
 

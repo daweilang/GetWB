@@ -90,15 +90,19 @@ class WeiboController extends Controller
     public function update(Request $request, $id)
     {
     	$this->validate($request, [
-    			'title' => 'required|unique:articles,title,'.$id.'|max:255',
-    			'body' => 'required',
+    			'wb_title' => 'required|unique:weibos,wb_title,'.$id.'|max:255',
+    			'wb_url' => 'required',
     	]);
-    	$article = Article::find($id);
-    	$article->title = $request->get('title');
-    	$article->body = $request->get('body');
+    	$weibo = Weibo::find($id);
+    	$weibo->wb_title = $request->get('wb_title');
+    	$weibo->wb_url = $request->get('wb_url');
     	 
-    	if($article->save()){
-    		return redirect('admin/article');
+    	if($weibo->save()){
+    		//将任务添加到队列，获得微博信息
+    		//http://weibo.com/1563926367/EcN8BcyME?type=comment#_rnd1477219631405
+    		$job = (new GetWeiboInfo($weibo))->delay(10);
+    		$this->dispatch($job);
+    		return redirect('admin/weibo');
     	}
     	else{
     		return redirect()->back()->withInput()->withErrors('更新失败');

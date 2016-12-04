@@ -35,11 +35,12 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::get('authorize', 'AuthorizeController@index');
 	Route::post('authorize/setConfig', 'AuthorizeController@setConfig');
 	Route::get('authorize/getPreParam', 'AuthorizeController@getPreParam');
-	Route::get('authorize/getCookie', 'AuthorizeController@getCookie');
+	Route::get('authorize/browserLogin', 'AuthorizeController@browserLogin');
+	Route::post('authorize/getCookie', 'AuthorizeController@getCookie');
 	
 	//返回提示成功信息
-	Route::get('authorize/seccuss', function(){return view('admin/weibo/seccuss');});
-	Route::get('authorize/fail', function(){return view('admin/weibo/fail');});
+	Route::get('authorize/seccuss', function(){return view('admin/weibo/seccuss',['groupName' => 'weibo']);});
+	Route::get('authorize/fail', function(){return view('admin/weibo/fail',['groupName' => 'weibo']);});
 });
 
 Route::get('/admin/authorize/getRsaPwd', 'Admin\AuthorizeController@getRsaPwd');

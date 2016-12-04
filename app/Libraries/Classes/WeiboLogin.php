@@ -55,9 +55,9 @@ class WeiboLogin extends CurlHandler
 				//设置 HTTP 头字段的数组
 				CURLOPT_HTTPHEADER => array('Accept-Language: zh-cn','Connection: Keep-Alive','Cache-Control: no-cache'),
 				//true 禁止 cURL 验证对等证书, 验证证书
-				CURLOPT_SSL_VERIFYPEER => true,
+// 				CURLOPT_SSL_VERIFYPEER => true,
 				//设置为 1 是检查服务器SSL证书中是否存在一个公用名(common name)
-				CURLOPT_SSL_VERIFYHOST => false,
+// 				CURLOPT_SSL_VERIFYHOST => false,
 				//全部数据使用HTTP协议中的 "POST" 操作来发送。
 				CURLOPT_POSTFIELDS => http_build_query($data),
 				//连接结束后，比如，调用 curl_close 后，保存 cookie 信息的文件。

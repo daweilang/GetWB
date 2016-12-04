@@ -18,9 +18,9 @@
                     <form action="{{ url('admin/weibo/'.$weibo->id) }}" method="POST">
                     	{{ method_field('PATCH') }}
                         {!! csrf_field() !!}
-                        <input type="text" name="title" class="form-control" required="required" placeholder="请输入标题" value="{{ $weibo->wb_title }}">
+                        <input type="text" name="wb_title" class="form-control" required="required" placeholder="请输入标题" value="{{ $weibo->wb_title }}">
                         <br>
-                        <textarea name="body" rows="10" class="form-control" required="required" placeholder="请输入内容" >{{ $weibo->wb_url }}</textarea>
+                        <textarea name="wb_url" rows="10" class="form-control" required="required" placeholder="请输入内容" >{{ $weibo->wb_url }}</textarea>
                         <br>
                         <button class="btn btn-lg btn-info">修改</button>
                     </form>
