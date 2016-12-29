@@ -8,7 +8,6 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Libraries\Contracts\GetWeiboCookie;
 
-use Config;
 use Storage;
 
 class AuthorizeController extends Controller
@@ -17,14 +16,15 @@ class AuthorizeController extends Controller
 	//设置组名
 	public function __construct()
 	{
-		view()->share('groupName', 'authorize');
+		view()->share('groupName', 'weibo');
+		view()->share('routeName', 'authorize');
 	}
 	
     //
     public function index()
     {
     	###判断cookie是否有效
-    	return view("admin/weibo/auth");
+    	return view("admin/authorize/auth");
     }
     
     //将用户名和密码录入临时文件，
@@ -40,12 +40,12 @@ class AuthorizeController extends Controller
     			'PASSWORD' => $request->get('password'),
     	];
     	
-    	$savePath = 'wbcookie/config.inc';
+    	$savePath = config('weibo.CookieFile.loginInc');
     	$bytes = Storage::put($savePath, json_encode($content));
     	if(!Storage::exists($savePath)){
     		return redirect()->back()->withInput()->withErrors('无法设置授权信息');
     	}   	
-    	return view("admin/weibo/set_config");
+    	return view("admin/authorize/set_config");
     }
     
     
@@ -75,7 +75,7 @@ class AuthorizeController extends Controller
     public function getRsaPwd(Request $request)
     {	
     	//获得预登陆配置
-    	$savePath = 'wbcookie/prelogin.config.inc';
+    	$savePath = config('weibo.CookieFile.preLoginInc');
     	if(!Storage::exists($savePath)){
     		return false;
     	}
@@ -129,7 +129,7 @@ EOT;
     	if($preParam['showpin'] == 1){    		
     		$randInt = rand(pow(10,(8-1)), pow(10,8)-1);
     		$preParam['doorImg'] = "http://login.sina.com.cn/cgi/pin.php?r={$randInt}&s=0&p={$preParam['pcid']}";
-			return view ( "admin/weibo/browser_login", $preParam );
+			return view ( "admin/authorize/browser_login", $preParam );
 		} 
 		else {
 			// ##如果没有图片验证码
@@ -166,19 +166,21 @@ EOT;
     	
     	if ($this->getCookiePack($preParam)) {
     		return Redirect ( "admin/authorize/seccuss" );
-    	} else {
+    	} 
+    	else {
     		return Redirect ( "admin/authorize/fail" );
     	}
     }
     
     /**
      * 测试访问微博
-     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     * @return 
      */
     public function setTestUrl()
     {
-    	return view("admin/test_url");
+    	return view("admin/authorize/test_url");
     }
+    
     
     public function getTestContent(Request $request)
     {
@@ -187,16 +189,20 @@ EOT;
     	]);
     	$url = $request->get('wb_url');
     	//微博cookie
-    	$cookieWeibo = storage_path()."/app/wbcookie/cookie_weibo.txt";
-    	$cookieGet =  storage_path()."/app/wbcookie/cookie_curl.txt";
-    	 
-    	if(!Storage::exists($cookieWeibo)){
+    	$cookieWeibo = config('weibo.CookieFile.weibo');
+    	$cookieCurl =  config('weibo.CookieFile.curl');
+    	
+    	if(!file_exists($cookieWeibo)){
     		return view("admin/error", [ 'error' => '未获得授权信息，请重新登录！']);
     	}
-    	 
-    	$wbLogin = new \App\Libraries\Classes\WeiboLogin();
-    	$content = $wbLogin->getWBHtml($url, $cookieWeibo, $cookieGet);
-    	echo $content;
+    	
+    	$wb = new \App\Libraries\Classes\WeiboContent();
+    	$content = $wb->getWBHtml($url, $cookieWeibo, $cookieCurl);
+    	//需要根据返回结果判断
+//     	if(empty($content)){
+//     		return view("admin/error", [ 'error' => '未获得授权信息，请重新登录！']);
+//     	}
+    	return view("admin/authorize/test_show", ['html'=>$content]);
     }
     
     
@@ -206,7 +212,7 @@ EOT;
     private function getPreConfig()
     {
 	    //获得预登陆配置
-	    $savePath = 'wbcookie/prelogin.config.inc';
+	    $savePath = config('weibo.CookieFile.preLoginInc');
 	    if(!Storage::exists($savePath)){
 	    	return false;
 	    }

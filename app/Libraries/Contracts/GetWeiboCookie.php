@@ -63,7 +63,7 @@ class GetWeiboCookie
 	public function getConfig()
 	{
 		//默认配置储存地址
-		$savePath = 'wbcookie/config.inc';
+		$savePath = $this->config['CookieFile']['loginInc'];
 		if(!Storage::exists($savePath)){
 			return false;
 		}
@@ -102,18 +102,10 @@ class GetWeiboCookie
 		if(($jsonArr['retcode'] != 0)){
 			throw new \Exception("登陆失败");
 			return false;
-		}else{
-// 			$this->preParam = [
-// 					'servertime' => $jsonArr['servertime'],
-// 					'nonce' => $jsonArr['nonce'],
-// 					'pubkey' => $jsonArr['pubkey'],
-// 					//登录使用参数
-// 					'rsakv' => $jsonArr['rsakv'],
-// 					'pcid' => $jsonArr['pcid'],
-// 			];
-// 			return $this->getEncodePwd();
+		}
+		else{
 			//采用临时文件存储方式存储预登陆所需文件
-			$savePath = 'wbcookie/prelogin.config.inc';
+			$savePath = $this->config['CookieFile']['preLoginInc'];
 			$bytes = Storage::put($savePath, json_encode($jsonArr));
 			return true;
 		}
@@ -154,10 +146,10 @@ class GetWeiboCookie
 		
 		include_once app_path().'/Libraries/function/helpers.php';
 
-		$cookieSina =  storage_path()."/app/wbcookie/cookie_sina.txt";
+		$cookieSina =  $this->config['CookieFile']['sina'];
 		//微博cookie
-		$cookieWeibo = storage_path()."/app/wbcookie/cookie_weibo.txt";
-		$cookieGet =  storage_path()."/app/wbcookie/cookie_curl.txt";
+		$cookieWeibo = $this->config['CookieFile']['weibo'];
+		$cookieCurl =  $this->config['CookieFile']['curl'];
 		
 		$wbLogin = new WeiboLogin();
 		
@@ -177,11 +169,51 @@ class GetWeiboCookie
 			throw new \Exception("未能获得微博cookie");
 			return false;
 		}
+		else{
+			var_dump($data);	
+		}
 		
 		//测试抓取
 // 		$url = "http://weibo.com/1563926367/EcN8BcyME?type=comment#_rnd1477219631405";
-// 		$content = $wbLogin->getWBHtml($url, $cookieWeibo, $cookieGet);
+// 		$content = $wbLogin->getWBHtml($url, $cookieWeibo, $cookieCurl);
 		return true;
 	}
+
+	/**
+	 * 获得weibo.cn的cookie
+	 * @param unknown $param
+	 * @return boolean
+	 */
+	public function getCnCookie($param)
+	{
+		//设置登陆用配置
+		$this->loginData['mobile'] = $param['mobile'];
+		$this->loginData['password_'.$param['password_num']] = $param['password_'.$param['password_num']];
+		$this->loginData['code'] = $param['code'];
+		$this->loginData['remember'] = 'on';
+		$this->loginData['backURL'] = $param['backURL'];
+		$this->loginData['backTitle'] = $param['backTitle'];
+		$this->loginData['tryCount'] = $param['tryCount'];
+		$this->loginData['vk'] = $param['vk'];
+		$this->loginData['capId'] = $param['capId'];
+		$this->loginData['submit'] = "登录";
+		
+		$cookieSina =  $this->config['CookieFileCn']['sina'];
+		//微博cookie
+		$cookieWeibo = $this->config['CookieFileCn']['weibo'];
+		$cookieCurl =  $this->config['CookieFileCn']['curl'];
+		
+		$wbLogin = new WeiboLogin();
 	
+		//登录weibo.cn
+		$sinaLoginUrl = $this->config['WeiboCnLogin'].$param['action'];
+
+		$login = $wbLogin->loginSinaCn($sinaLoginUrl, $this->loginData, $cookieSina);
+
+		//测试抓取
+// 		$url = "http://weibo.cn/u/5123398775";
+// 		$content = $wbLogin->getWBHtml($url, $cookieSina, $cookieCurl);
+
+		return true;
+	}
 }

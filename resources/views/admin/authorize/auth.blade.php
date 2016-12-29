@@ -1,14 +1,25 @@
 @extends('admin/app')
 
 @section('content')
-<div class="container">
+<div class="row wrapper border-bottom white-bg page-heading">
+		<div class="col-lg-10">
+			<h2>Data Tables</h2>
+			<ol class="breadcrumb">
+				<li><a href="index.html">平台首页</a></li>
+				<li><a>数据统计</a></li>
+				<li class="active"><strong>微博授权</strong></li>
+			</ol>
+		</div>
+		<div class="col-lg-2"></div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">填写SINA授权信息</div>
+                <div class="panel-heading">填写SINA授权信息<br>采用登录微博主站获得Cookie方式访问微博，Cookie失效后需要重新获得授权</div>
                 <div class="panel-heading">
-                	采用登录微博主站获得Cookie方式访问微博，获得Cookie后，将清除SINA登录信息<br>
-                	Cookie失效后需要重新获得授权
+                	访问weibo.cn获取信息请访问<a href="{{ url('/admin/authorizeCn') }}">手机微博授权</a>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/admin/authorize/setConfig') }}">
@@ -45,9 +56,6 @@
                             <div class="col-md-6 col-md-offset-4">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa fa-btn fa-sign-in"></i> 授权
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fa fa-btn fa-sign-in"></i> 后台授权
                                 </button>
                             </div>
                         </div>

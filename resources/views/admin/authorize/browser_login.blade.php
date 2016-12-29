@@ -1,7 +1,7 @@
 @extends('admin.app')
 
 @section('content')
-<div class="container">  
+<div class="row wrapper border-bottom white-bg page-heading"> 
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="panel panel-default">

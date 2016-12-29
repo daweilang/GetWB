@@ -2,7 +2,7 @@
 
 @section('content')
 <meta http-equiv="refresh" content="1;url={{ url('admin/authorize/getPreParam') }}"> 
-<div class="container">
+<div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">

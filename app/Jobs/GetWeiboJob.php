@@ -8,9 +8,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Models\Weibo;
-use App\Libraries\Contracts\GetWeiboContent;
+use App\Libraries\Contracts\GetWeiboInfo;
 
-class GetWeiboInfo extends Job implements ShouldQueue
+class GetWeiboJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     
@@ -34,8 +34,18 @@ class GetWeiboInfo extends Job implements ShouldQueue
      */
     public function handle()
     {
-    	$url = $this->weibo->wb_url;
-    	$getContent = new GetWeiboContent();
-    	$content = $getContent->getWeiboHtml($url);
+    	//只有微博状态为未分析时候才有效
+    	if(in_array($this->weibo->wb_status, [0, 2])){
+	    	$getContent = new GetWeiboInfo($this->weibo);	    	
+	    	//获得微博页面内容
+	    	$getContent->getWeiboHtml();
+	    	//分析微博的评论
+	    	$getContent->explainWeiboComment($this->weibo);
+   			return true; 	
+    	}
+    	else{
+    		return ;	
+    	}
     }
+    
 }

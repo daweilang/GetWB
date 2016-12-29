@@ -30,8 +30,8 @@
 				<a href="#"  ><i class="fa fa-table"></i> <span class="nav-label">数据统计</span><span class="fa arrow"></span></a>
 				<ul class="nav nav-second-level collapse">
 					<li><a href="table_basic.html">功能说明</a></li>
-					<li @if ($routeName == 'weibo')  class="active" @endif><a href="{{ url('/admin/weibo') }}">评论统计</a></li>
-					<li><a href="table_foo_table.html">Foo Tables</a></li>
+					<li @if ($routeName == 'weibo')  class="active" @endif><a href="{{ url('/admin/weibo') }}">统计任务</a></li>
+					<li @if ($routeName == 'users')  class="active" @endif><a href="{{ url('/admin/users') }}">用户统计</a></li>
 					<li @if ($routeName == 'authorize')  class="active" @endif><a href="{{ url('/admin/authorize') }}">微博授权</a></li>
 				</ul></li>
 			<li><a href="#"><i class="fa fa-shopping-cart"></i> <span

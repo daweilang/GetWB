@@ -7,14 +7,15 @@
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": "5.2.*",
-        "predis/predis": "~1.1@dev"
+        "predis/predis": "~1.1@dev",
+        "fabpot/goutte": "^3.2",
+        "symfony/dom-crawler": "^3.2",
+        "symfony/css-selector": "^3.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~4.0",
-        "symfony/css-selector": "2.8.*|3.0.*",
-        "symfony/dom-crawler": "2.8.*|3.0.*"
+        "phpunit/phpunit": "~4.0"
     },
     "autoload": {
         "classmap": [
