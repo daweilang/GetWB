@@ -60,9 +60,9 @@ class GetUserInfo
 	 */
 	public function explainUserFace($userHtml, $file ='')
 	{
-		if($file && Storage::exists($this->file)){
+		if($file && Storage::exists($file)){
 			//该页面应该是html
-			$userHtml = Storage::get($this->file);
+			$userHtml = Storage::get($file);
 		}
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($userHtml);

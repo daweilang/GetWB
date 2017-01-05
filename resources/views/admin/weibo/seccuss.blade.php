@@ -1,7 +1,7 @@
 @extends('admin/app')
 
 @section('content')
-<div class="row wrapper border-bottom white-bg page-heading">
+<div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">

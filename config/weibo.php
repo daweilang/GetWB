@@ -127,9 +127,14 @@ return [
 		'pregTitle' => '/\<title\>([\s\S]*?)\<\/title\>/',
 		//评论接口地址
 		'commentUrl' => "http://weibo.com/aj/v6/comment/big?ajwvr=6&id=%s&page=%d",
+		//微博的赞
+		'likeUrl' => "http://weibo.com/aj/v6/like/big?ajwvr=6&mid=%s&page=%d",
+		//评论的赞
+		'likeCommentUrl' => "http://weibo.com/aj/like/object/big?ajwvr=6&object_id=%s&object_type=comment&_t=0&page=%d",
 		//获取评论id
 		'pregCommentId' => '/\\\"key\=profile_feed&value\=comment\:(\d+)\\\"/',
-			
+		//$CONFIG['oid']='2656274875';页面主人id
+		'oid' => '/\$CONFIG\[\'oid\'\]\=\'(\d+)\'/',
 	],	
 	
 	

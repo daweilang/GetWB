@@ -48,7 +48,7 @@ class WeiboFansController extends Controller
     {
     	$job = (new GetFansJob($uid))->delay(10);
     	//多进程时候使用命名
-    	//$job = (new SetFansJob($gid))->onQueue('SetFansJob')->delay(10);
+    	//$job = (new GetFansJob($uid))->onQueue('GetFansJob')->delay(10);
     	$this->dispatch($job);
     	return redirect('admin/message/3/setCommentJobJob');
     }

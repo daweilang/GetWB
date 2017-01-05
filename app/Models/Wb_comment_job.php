@@ -9,6 +9,6 @@ class Wb_comment_job extends Model
     //
 	protected $primaryKey = 'j_id';
 	
-	protected $fillable = ['gid', 'j_comment_page'];
+	protected $fillable = ['mid', 'j_comment_page'];
 	
 }

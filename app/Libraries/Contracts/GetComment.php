@@ -24,11 +24,11 @@ use Storage;
 
 class GetComment
 {	
-	public $gid;
+	public $mid;
 	
-	public function __construct($gid)
+	public function __construct($mid)
 	{
-		$this->gid = $gid;
+		$this->mid = $mid;
 	}
 	
 	
@@ -46,11 +46,11 @@ class GetComment
 	 */
 	public function setCommentJob()
 	{
-		$weibo = Weibo::where('wb_comment_gid', $this->gid)->first();
+		$weibo = Weibo::where('wb_mid', $this->mid)->first();
 		for($page=1;$page<=$weibo->wb_comment_page;$page++){
 // 		for($page=1;$page<=3;$page++){
 			//插入表数据
-			$comment_job = Wb_comment_job::create( [ 'gid' => $this->gid, 'j_comment_page' => $page, ]);
+			$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, ]);
 			//设置job
 			$job = (new GetCommentContentJob($comment_job))->delay(10);
 			//多进程时候使用命名
@@ -65,15 +65,15 @@ class GetComment
 	public function getCommentHtml($page)
 	{
 		//评论页地址
-		$commentUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->gid, $page);
-		$file = "wbHtml/$this->gid/comment_$page";
+		$commentUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
+		$file = "wbHtml/$this->mid/comment_$page";
 		$wb = new WeiboContent();
 		//抓取
 		$content = $wb->getWBHtml($commentUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
 		
 		$array = json_decode($content, true);
 		if(!is_array($array) || $array['code'] !== '100000'){
-			Storage::put("wbHtml/$this->gid/error_$page", $content);
+			Storage::put("wbHtml/$this->mid/error_$page", $content);
 			throw new \Exception("无法获取微博评论，请检查获取结果");
 		}
 		$html = $array['data']['html'];
@@ -104,7 +104,7 @@ class GetComment
 			$wbComment = Wb_comment::firstOrNew(['comment_id'=>$wbCommentId]);
 			//更新时不必改动项
 			if(!$wbComment->exists){	
-				$wbComment->gid = $this->gid;
+				$wbComment->mid = $this->mid;
 				$wbComment->comment_id = $wbCommentId;
 			}
 			$wbComment->wb_face = $row->filterXPath('//div[@class="WB_face W_fl"]')->filter('a')->attr('href');

@@ -14,8 +14,8 @@ class CreateWbCommentsTable extends Migration
     {
     	//
     	Schema::create('wb_comments', function (Blueprint $table) {
-    		$table->string('comment_id', '30');
-    		$table->string('gid', '30')->comment('评论所属组，对应wb_comment_gid');
+    		$table->bigInteger('comment_id');
+    		$table->bigInteger('mid')->comment('微博id');
     		$table->string('wb_face','200')->comment('微博个人主页');
     		$table->string('wb_usercard','50')->comment('微博个人id');
     		$table->string('wb_username','30')->comment('用户姓名');

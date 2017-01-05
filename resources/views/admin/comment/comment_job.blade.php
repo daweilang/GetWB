@@ -23,8 +23,8 @@
 					@if(count($comments)>0)
 					<div class="panel-body">设置 ($count($comments)) 条抓取任务，已执行，未完成！</div>
 	                @else
-	                <div class="panel-body">尚未设置获取评论页任务 <a href="{{ url('admin/commentJob/setting/'.$weibo->wb_comment_gid) }}" class="btn btn-danger">设置</a></div>
-	                <div class="panel-body">评论较多时请设置队列获取任务 <a href="{{ url('admin/commentJob/settingJob/'.$weibo->wb_comment_gid) }}" class="btn btn-danger">设置</a></div>
+	                <div class="panel-body">尚未设置获取评论页任务 <a href="{{ url('admin/commentJob/setting/'.$weibo->wb_mid) }}" class="btn btn-danger">设置</a></div>
+	                <div class="panel-body">评论较多时请设置队列获取任务 <a href="{{ url('admin/commentJob/settingJob/'.$weibo->wb_mid) }}" class="btn btn-danger">设置</a></div>
 	                @endif 
 	                
 	             </div>

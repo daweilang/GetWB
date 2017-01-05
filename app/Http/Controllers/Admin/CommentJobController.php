@@ -30,31 +30,31 @@ class CommentJobController extends Controller
 	}
 	
     //
-    public function index($gid)
+    public function index($mid)
     {
-    	$weibo = Weibo::where('wb_comment_gid', $gid)->first();
-    	$data = Wb_comment_job::where('gid', $gid)->paginate(15);
+    	$weibo = Weibo::where('wb_mid', $mid)->first();
+    	$data = Wb_comment_job::where('mid', $mid)->paginate(15);
     	return view('admin/comment/comment_job', ['weibo'=>$weibo, 'comments'=>$data]);
     }
     
     /**
      * 设置获取微博评论的任务，页面设置
-     * @param unknown $gid 微博评论组id
+     * @param unknown $mid 微博id
      * @return 
      */
-    public function Setting($gid)
+    public function Setting($mid)
     {  	
-    	$commnetJob = new GetComment($gid);
+    	$commnetJob = new GetComment($mid);
     	$commnetJob->setCommentJob();
     	return redirect('admin/message/1/setCommentJob');
     }
 
-    public function settingJob($gid)
+    public function settingJob($mid)
     {
     	//微博评论页太多时，采用队列模式
-    	$job = (new SetCommentJob($gid))->delay(10);
+    	$job = (new SetCommentJob($mid))->delay(10);
     	//多进程时候使用命名
-//     	$job = (new SetCommentJob($gid))->onQueue('SetComment')->delay(10);
+//     	$job = (new SetCommentJob($mid))->onQueue('SetComment')->delay(10);
     	$this->dispatch($job);
     	return redirect('admin/message/3/setCommentJobJob');
     }

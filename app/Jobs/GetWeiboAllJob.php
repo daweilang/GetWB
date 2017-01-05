@@ -41,15 +41,23 @@ class GetWeiboAllJob extends Job implements ShouldQueue
     		###分析微博页的业务逻辑
 	    	$getContent = new GetWeiboInfo($this->weibo);	    	
 	    	//获得微博页面内容
-	    	$getContent->getWeiboHtml();
+	    	$content = $getContent->getWeiboHtml();
 	    	//分析微博的评论
-	    	$getContent->explainWeiboComment($this->weibo);
+	    	$getContent->explainWeibo($content);
+
+	    	//分析微博赞的业务逻辑采用队列模式
+	    	$job = (new SetLikeJob($getContent->mid))->delay(5);
+	    	//多进程时候使用命名
+// 	    	$job = (new SetLikeJob($mid))->onQueue('SetLike')->delay(5);
+	    	dispatch($job);
 	    	
 	    	//分析评论的业务逻辑采用队列模式
-	    	$job = (new SetCommentJob($getContent->gid))->delay(10);
+	    	$job = (new SetCommentJob($getContent->mid))->delay(5);
 	    	//多进程时候使用命名
-	    	//$job = (new SetCommentJob($gid))->onQueue('SetComment')->delay(10);
+// 	    	$job = (new SetCommentJob($mid))->onQueue('SetComment')->delay(5);
 	    	dispatch($job);
+
+
 	    	
    			return true; 	
     	}

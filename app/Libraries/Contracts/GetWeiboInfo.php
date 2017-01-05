@@ -11,11 +11,13 @@
 
 namespace App\Libraries\Contracts;
 
-use Log;
-use App\Libraries\Classes\WeiboContent;
 use App\Models\Weibo;
+use App\Libraries\Classes\WeiboContent;
+use Symfony\Component\DomCrawler\Crawler;
+
 use Config;
 use Storage;
+
 
 
 class GetWeiboInfo
@@ -25,9 +27,11 @@ class GetWeiboInfo
 	
 	//加载配置
 	private $config;
-	public  $gid;
+	
+	public  $mid;
 	
 	protected $weibo;
+	private $wbFile;
 	
 	public function __construct(Weibo $weibo)
 	{
@@ -39,6 +43,9 @@ class GetWeiboInfo
 		//微博cookie
 		$this->cookieWeibo = $this->config['CookieFile']['weibo'];
 		$this->cookieCurl =  $this->config['CookieFile']['curl'];
+		
+		//微博储存地址
+		$this->wbFile = "wbHtml/weibo_{$this->weibo->id}_page";
 	}
 	
 	
@@ -59,7 +66,6 @@ class GetWeiboInfo
 	 */
 	public function getWeiboHtml()
 	{
-		$file = "wbHtml/weibo_". $this->weibo->id ."_page";
 		$wb = new WeiboContent();
 		//测试抓取
 		$content = $wb->getWBHtml($this->weibo->wb_url, $this->cookieWeibo, $this->cookieCurl);		
@@ -69,11 +75,73 @@ class GetWeiboInfo
 			throw new \Exception("微博登录失效，请重新授权");
 		}
 		
-		Storage::put($file, $content);
-		if(!Storage::exists($file)){
+		Storage::put($this->wbFile, $content);
+		if(!Storage::exists($this->wbFile)){
 			throw new \Exception("无法储存微博页面");
 		}
-		return true;
+		return $content;
+	}
+	
+	/**
+	 * 根据微博内容抓取第一页评论和赞分析
+	 * @param unknown $wbHtml
+	 * @param string $file $this->wbFile
+	 */
+	public function explainWeibo($wbHtml, $file ='')
+	{
+		if($file && Storage::exists($file)){
+			$wbHtml = Storage::get($file);
+		}
+		
+		###该页使用js输出，内容不能使用crawler分析
+		$crawler = new Crawler();
+		$crawler->addHtmlContent($wbHtml);
+		//返回新浪通行证
+		$title = $crawler->filter('title')->text();
+		
+		if(preg_match($this->config['WeiboInfo']['pregCommentId'], $wbHtml , $match)){
+			
+			$this->mid = $match['1'];
+
+			$wb = new WeiboContent();
+			
+			//第一页评论地址，获得评论页内容
+			$comment = sprintf($this->config['WeiboInfo']['commentUrl'], $this->mid, 1);
+			$content = $wb->getWBHtml($comment, $this->cookieWeibo, $this->cookieCurl);			
+			$data = json_decode($content, true);
+			$pageCommnetData = $this->getWeiboCommnetInfo($data);
+			$commentFile = "wbHtml/weibo_". $this->weibo->id ."_commnet";
+			Storage::put($commentFile, $content, true);
+			
+			//获得赞页内容，获得赞页列表
+			$like = sprintf($this->config['WeiboInfo']['likeUrl'], $this->mid, 1);
+			$content = $wb->getWBHtml($like, $this->cookieWeibo, $this->cookieCurl);			
+			$data = json_decode($content, true);
+			$pageLikeData = $this->getWeiboLikeInfo($data);
+			$likeFile = "wbHtml/weibo_". $this->weibo->id ."_like";
+			Storage::put($likeFile, $content, true);
+			
+			if(preg_match($this->config['WeiboInfo']['oid'], $wbHtml , $m)){
+				$this->weibo->wb_userid = $m[1];
+			}
+			
+			$this->weibo->wb_title = $title;
+			$this->weibo->wb_mid = $this->mid;
+			$this->weibo->wb_comment_page = $pageCommnetData['totalpage'];
+			$this->weibo->wb_comment_total = $pageCommnetData['count'];
+			$this->weibo->wb_like_page = $pageLikeData['totalpage'];
+			$this->weibo->wb_like_total = $pageLikeData['count'];
+			$this->weibo->wb_status = 1;
+			$this->weibo->save();
+				
+			return true;
+		}
+		else{
+			Log::info("无法获得微博页面");
+			throw new \Exception("无法获得微博页面");
+			return false;
+		}
+		
 	}
 	
 	
@@ -96,9 +164,9 @@ class GetWeiboInfo
 				
 		if(preg_match($this->config['WeiboInfo']['pregCommentId'], $content , $match)){
 			
-			$this->gid = $match['1'];
+			$this->mid = $match['1'];
 			//第一页评论地址
-			$comment = sprintf($this->config['WeiboInfo']['commentUrl'], $this->gid, 1);
+			$comment = sprintf($this->config['WeiboInfo']['commentUrl'], $this->mid, 1);
 			$wb = new WeiboContent();
 			//获得评论页内容
 			$content = $wb->getWBHtml($comment, $this->cookieWeibo, $this->cookieCurl);
@@ -107,7 +175,7 @@ class GetWeiboInfo
 			$pageData = $this->getWeiboCommnetInfo($data);
 
 			$this->weibo->wb_title = $m['1'];
-			$this->weibo->wb_comment_gid = $this->gid;
+			$this->weibo->wb_mid = $this->mid;
 			$this->weibo->wb_comment_page = $pageData['totalpage'];
 			$this->weibo->wb_comment_total = $pageData['count'];
 			$this->weibo->wb_status = 1;
@@ -149,6 +217,31 @@ class GetWeiboInfo
 		return [
 				'totalpage' => $commentData['data']['page']['totalpage'], 
 				'count' => $commentData['data']['count']
+				];
+	}	
+
+	/**
+	 * 
+	 * 根据评论页面信息获得weibo的评论明细
+	 * @param array $data 点赞用户数组
+	 * @param unknown $file, 使用storage储存的页面
+	 * 两种方式，评论保存临时文件或者评论数组
+	 * @throws \Exception
+	 * @return unknown[]|mixed[] 返回评论总页数，总评论数
+	 */
+	public function getWeiboLikeInfo( $likeData, $file =''){
+		
+		if(Storage::exists($file)){
+			//该页面应该是直接抓取json数据
+			$likeData = json_decode(Storage::get($file),true);
+		}
+		if($likeData['code'] != '100000'){
+			//获取评论错误
+			throw new \Exception($likeData['msg']);
+		}
+		return [
+				'totalpage' => $likeData['data']['page']['totalpage'], 
+				'count' => $likeData['data']['total_number']
 				];
 	}	
 }

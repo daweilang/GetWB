@@ -8,5 +8,5 @@ class Wb_comment extends Model
 {
     //
     protected $primaryKey = 'comment_id';
-	protected $fillable = ['comment_id', 'gid'];
+	protected $fillable = ['comment_id', 'mid'];
 }

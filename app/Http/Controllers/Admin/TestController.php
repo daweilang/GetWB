@@ -6,7 +6,7 @@ use Log;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Libraries\Contracts\GetFans;
+use App\Libraries\Contracts\GetLike;
 use App\Models\Weibo;
 use Symfony\Component\DomCrawler\Crawler;
 use Storage;
@@ -21,9 +21,9 @@ class TestController extends Controller
     public function exampleTest()
     {
     	Log::info('Showing user profile for user: ');
-    	throw new \Exception("无法获取粉丝列表，请检查");
-//     	$getContent = new GetFans("5123398775");
-//     	$getContent->getFansJob();
+//     	throw new \Exception("无法获取粉丝列表，请检查");
+    	$getContent = new GetLike("4059409665160775");
+    	$getContent->explainLikePage('', "wbHtml/$getContent->mid/like_1");
     	
     }
     

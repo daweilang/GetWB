@@ -11,24 +11,25 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-use App\Models\Weibo;
 use App\Libraries\Contracts\GetComment;
+use App\Libraries\Classes\SetJobLog;
 
 class SetCommentJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     
-    protected $gid;
+    protected $mid;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($gid)
+    public function __construct($mid)
     {
         //
-        $this->gid = $gid;
+        $this->mid = $mid;
+        $this->job_log = new SetJobLog();
     }
 
     /**
@@ -38,8 +39,21 @@ class SetCommentJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-    	$commentJob = new GetComment($this->gid);
+    	$this->job_log->createLog(['type'=>'comment','object_id'=>$this->mid,'status'=>0]);
+    	$commentJob = new GetComment($this->mid);
     	$commentJob = $commentJob->setCommentJob();
+    	$this->job_log->updateLog(['status'=>1]);
     }
     
+    
+    /**
+     * 处理失败任务
+     *
+     * @return void
+     */
+    public function failed()
+    {
+    	//失败任务的状态
+    	$this->job_log->updateLog(['status'=>2]);
+    }
 }

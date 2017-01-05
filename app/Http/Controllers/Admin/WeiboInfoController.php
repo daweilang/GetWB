@@ -31,7 +31,7 @@ class WeiboInfoController extends Controller
     //
     public function index()
     {
-    	return view('admin/weibo/weibo')->withWeibos(Weibo::paginate(10));
+    	return view('admin/weibo/weibo')->withWeibos(Weibo::orderBy('id', 'desc')->paginate(10));
     }
     
     public function create()
@@ -54,7 +54,7 @@ class WeiboInfoController extends Controller
     
     	if ($weibo->save()) {
 			//将任务添加到队列，获得微博信息
-    		$job = (new GetWeiboAllJob($weibo))->delay(10);
+    		$job = (new GetWeiboAllJob($weibo))->delay(5);
 //     		$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay(10);
     		$this->dispatch($job);
     		return redirect('admin/weibo');
@@ -95,10 +95,5 @@ class WeiboInfoController extends Controller
     }
     
     
-    public function destroy($id)
-    {
-//     	Weibo::find($id)->delete();
-//     	return redirect()->back()->withInput()->withErrors('删除成功！');
-    }
     
 }

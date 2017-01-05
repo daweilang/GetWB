@@ -31,9 +31,9 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::get('fans/settingJob/{uid}', 'WeiboFansController@settingJob');
 	
 	/* ================== 微博评论任务 ================== */
-	Route::get('commentJob/{gid}', 'CommentJobController@index');
-	Route::get('commentJob/setting/{gid}', 'CommentJobController@Setting');
-	Route::get('commentJob/settingJob/{gid}', 'CommentJobController@settingJob');
+	Route::get('commentJob/{mid}', 'CommentJobController@index');
+	Route::get('commentJob/setting/{mid}', 'CommentJobController@Setting');
+	Route::get('commentJob/settingJob/{mid}', 'CommentJobController@settingJob');
 	
 	/* ================== 获得微博授权相关 ================== */
 	Route::get('authorize', 'AuthorizeController@index');
