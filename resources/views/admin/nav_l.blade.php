@@ -29,11 +29,27 @@
 			<li @if ($groupName == 'weibo')  class="active" @endif>
 				<a href="#"  ><i class="fa fa-table"></i> <span class="nav-label">数据统计</span><span class="fa arrow"></span></a>
 				<ul class="nav nav-second-level collapse">
-					<li><a href="table_basic.html">功能说明</a></li>
+					<li><a href="">功能说明</a></li>
 					<li @if ($routeName == 'weibo')  class="active" @endif><a href="{{ url('/admin/weibo') }}">统计任务</a></li>
 					<li @if ($routeName == 'users')  class="active" @endif><a href="{{ url('/admin/users') }}">用户统计</a></li>
 					<li @if ($routeName == 'authorize')  class="active" @endif><a href="{{ url('/admin/authorize') }}">微博授权</a></li>
-				</ul></li>
+				</ul>
+			</li>
+			<li @if ($groupName == 'complete')  class="active" @endif>
+				<a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">综合分析</span><span class="fa arrow"></span></a>
+				<ul class="nav nav-second-level collapse">
+					<li><a href="#">功能说明</a></li>
+					<li @if ($routeName == 'index')  class="active" @endif><a href="{{ url('/admin/complete') }}">分析用户</a></li>
+					<li><a href="#">Second Level Item</a></li>				
+<!-- 					<li><a href="#">Third Level <span class="fa arrow"></span></a> -->
+<!-- 						<ul class="nav nav-third-level"> -->
+<!-- 							<li><a href="#">Third Level Item</a></li> -->
+<!-- 							<li><a href="#">Third Level Item</a></li> -->
+<!-- 							<li><a href="#">Third Level Item</a></li> -->
+<!-- 						</ul></li> -->
+				</ul>
+			</li>				
+				
 			<li><a href="#"><i class="fa fa-shopping-cart"></i> <span
 					class="nav-label">E-commerce</span><span class="fa arrow"></span></a>
 				<ul class="nav nav-second-level collapse">
@@ -53,20 +69,7 @@
 					<li><a href="carousel.html">Bootstrap Carousel</a></li>
 
 				</ul></li>
-			<li><a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">Menu
-						Levels </span><span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level collapse">
-					<li><a href="#">Third Level <span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li><a href="#">Third Level Item</a></li>
-							<li><a href="#">Third Level Item</a></li>
-							<li><a href="#">Third Level Item</a></li>
 
-						</ul></li>
-					<li><a href="#">Second Level Item</a></li>
-					<li><a href="#">Second Level Item</a></li>
-					<li><a href="#">Second Level Item</a></li>
-				</ul></li>
 			<li><a href="css_animation.html"><i class="fa fa-magic"></i> <span
 					class="nav-label">CSS Animations </span>
 			<span class="label label-info pull-right">62</span></a></li>

@@ -12,6 +12,7 @@
 namespace App\Libraries\Contracts;
 
 use App\Models\Weibo;
+use App\Models\Wb_user;
 use App\Models\Wb_comment_job;
 use App\Models\Wb_comment;
 
@@ -25,26 +26,24 @@ use Storage;
 class GetComment
 {	
 	public $mid;
+	//执行延时
+	public $delay = 0;
 	
 	public function __construct($mid)
 	{
 		$this->mid = $mid;
+		//获得全局延时时间设置
+		if(config('queue.delay')){
+			$this->delay = config('queue.delay');
+		}
 	}
 	
-	
-	/**
-	 * 判断微博cookie是否可用
-	 */
-	public function weiboCookieIsUse()
-	{
-		return true;
-	}
 	
 	
 	/**
 	 * 根据评论页数，设置评论页队列任务
 	 */
-	public function setCommentJob()
+	public function setCommentJob($jobName='')
 	{
 		$weibo = Weibo::where('wb_mid', $this->mid)->first();
 		for($page=1;$page<=$weibo->wb_comment_page;$page++){
@@ -52,9 +51,13 @@ class GetComment
 			//插入表数据
 			$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, ]);
 			//设置job
-			$job = (new GetCommentContentJob($comment_job))->delay(10);
-			//多进程时候使用命名
-// 			$job = (new GetCommentContentJob($comment_job))->onQueue('GetComment')->delay(10);
+			if(empty($jobName)){
+				$job = (new GetCommentContentJob($comment_job))->delay($this->delay);
+			}
+			else{
+				//多进程时候使用命名
+				$job = (new GetCommentContentJob($comment_job))->onQueue($jobName)->delay($this->delay);
+			}
 			dispatch($job);
 		}
 	}
@@ -109,15 +112,29 @@ class GetComment
 			}
 			$wbComment->wb_face = $row->filterXPath('//div[@class="WB_face W_fl"]')->filter('a')->attr('href');
 			$usercard = $row->filterXPath('//div[@class="WB_face W_fl"]')->filter('a>img')->attr('usercard');
-			preg_match('/id\=(\d+)/', $usercard , $match);
-			$wbComment->wb_usercard = $match[1];
-			$wbComment->wb_username = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->text();
+			$uid = '';
+			if(preg_match('/id\=(\d+)/', $usercard , $match)){			
+				$wbComment->wb_usercard = $uid = $match[1];
+			}
+			$wbComment->wb_username = $username = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->text();
 			$text = trim($row->filterXPath('//div[@class="WB_text"]')->text());
 			$wbComment->wb_content = mb_substr($text,mb_strlen($wbComment->wb_username."：",'UTF-8'), null, 'UTF-8');
 			if($row->filterXPath('//div[@class="WB_media_wrap clearfix"]')->getNode(0)){
 				$wbComment->wb_comment_pic_url = $row->filterXPath('//div[@class="media_box"]')->filter('ul>li>img')->attr('src');
 			}
 			$wbComment->save();
+				
+			if($uid){	
+				//储存用户信息
+				$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
+				//后台执行抓取用户信息程序
+				if(!$wbUser->exists){
+					$wbUser->uid = $uid;
+					$wbUser->username = $username;
+					$wbUser->save();
+				}	
+			}
+			
 		});
 	}
 }

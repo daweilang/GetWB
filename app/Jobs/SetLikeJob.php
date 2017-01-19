@@ -29,6 +29,7 @@ class SetLikeJob extends Job implements ShouldQueue
         //
         $this->mid = $mid;
         $this->job_log = new SetJobLog();
+        $this->job_log->createLog(['type'=>'like','object_id'=>$this->mid,'status'=>0]);
     }
 
     /**
@@ -38,7 +39,6 @@ class SetLikeJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-    	$this->job_log->createLog(['type'=>'like','object_id'=>$this->mid,'status'=>0]);
     	$likeJob = new GetLike($this->mid);
     	$likeJob->setLikeJob();
     	$this->job_log->updateLog(['status'=>1]);

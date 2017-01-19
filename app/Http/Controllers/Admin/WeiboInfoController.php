@@ -22,10 +22,21 @@ use App\Libraries\Contracts\GetWeiboInfo;
 class WeiboInfoController extends Controller
 {
 	
+	//执行延时
+	public $delay = 0;
+	//对了名称开关
+	public $jobName = FALSE;
+	
 	//设置组名
 	public function __construct()
 	{
 		view()->share('groupName', 'weibo');
+		view()->share('path', 'admin/weibo');
+		
+		//获得全局延时时间设置
+		if(config('queue.delay')){
+			$this->delay = config('queue.delay');
+		}
 	}
 	
     //
@@ -54,8 +65,12 @@ class WeiboInfoController extends Controller
     
     	if ($weibo->save()) {
 			//将任务添加到队列，获得微博信息
-    		$job = (new GetWeiboAllJob($weibo))->delay(5);
-//     		$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay(10);
+			if($this->jobName){
+				$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
+			}
+			else{
+				$job = (new GetWeiboAllJob($weibo))->delay($this->delay);
+			}	
     		$this->dispatch($job);
     		return redirect('admin/weibo');
     	} 

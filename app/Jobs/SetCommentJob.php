@@ -19,6 +19,7 @@ class SetCommentJob extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
     
     protected $mid;
+    protected $job_log;
 
     /**
      * Create a new job instance.
@@ -30,6 +31,7 @@ class SetCommentJob extends Job implements ShouldQueue
         //
         $this->mid = $mid;
         $this->job_log = new SetJobLog();
+        $this->job_log->createLog(['type'=>'comment','object_id'=>$mid,'status'=>0]);
     }
 
     /**
@@ -39,7 +41,6 @@ class SetCommentJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-    	$this->job_log->createLog(['type'=>'comment','object_id'=>$this->mid,'status'=>0]);
     	$commentJob = new GetComment($this->mid);
     	$commentJob = $commentJob->setCommentJob();
     	$this->job_log->updateLog(['status'=>1]);

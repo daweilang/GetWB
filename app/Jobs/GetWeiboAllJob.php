@@ -16,6 +16,11 @@ class GetWeiboAllJob extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
     
     protected $weibo;
+    
+    //执行延时
+    public $delay;
+    //任务名，true或false
+    private $jobName = FALSE;
 
     /**
      * Create a new job instance.
@@ -26,6 +31,14 @@ class GetWeiboAllJob extends Job implements ShouldQueue
     {
         //
         $this->weibo = $weibo;
+        
+        //获得全局延时时间设置
+        if(config('queue.delay')){
+        	$this->delay = config('queue.delay');
+        }
+        else{
+        	$this->delay = 0;
+        }
     }
 
     /**
@@ -46,19 +59,25 @@ class GetWeiboAllJob extends Job implements ShouldQueue
 	    	$getContent->explainWeibo($content);
 
 	    	//分析微博赞的业务逻辑采用队列模式
-	    	$job = (new SetLikeJob($getContent->mid))->delay(5);
-	    	//多进程时候使用命名
-// 	    	$job = (new SetLikeJob($mid))->onQueue('SetLike')->delay(5);
+	    	if($this->jobName){
+	    		//多进程时候使用命名
+	    		$job = (new SetLikeJob($getContent->mid))->onQueue('SetLike')->delay($this->delay);
+	    	}
+	    	else{
+	    		$job = (new SetLikeJob($getContent->mid))->delay($this->delay);
+	    	}
 	    	dispatch($job);
 	    	
 	    	//分析评论的业务逻辑采用队列模式
-	    	$job = (new SetCommentJob($getContent->mid))->delay(5);
+	    	if($this->jobName){
 	    	//多进程时候使用命名
-// 	    	$job = (new SetCommentJob($mid))->onQueue('SetComment')->delay(5);
+	    		$job = (new SetCommentJob($getContent->mid))->onQueue('SetComment')->delay($this->delay);
+	    	}
+	    	else{
+	    		$job = (new SetCommentJob($getContent->mid))->delay($this->delay);
+	    	}
 	    	dispatch($job);
 
-
-	    	
    			return true; 	
     	}
     	else{

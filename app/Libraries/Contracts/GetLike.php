@@ -21,6 +21,7 @@ use App\Libraries\Classes\WeiboContent;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;
+use Illuminate\Support\Facades\App;
 
 
 class GetLike
@@ -29,27 +30,24 @@ class GetLike
 	public $mid;
 	//微博所属用户id
 	public $oid;
+	//执行延时
+	public $delay;
 	
 	
 	public function __construct($mid)
 	{
 		$this->mid = $mid;
-	}
-	
-	
-	/**
-	 * 判断微博cookie是否可用
-	 */
-	public function weiboCookieIsUse()
-	{
-		return true;
+		//获得全局延时时间设置
+		if(config('queue.delay')){
+			$this->delay = config('queue.delay');
+		}
 	}
 	
 	
 	/**
 	 * 根据赞页数，设置评论页队列任务
 	 */
-	public function setLikeJob()
+	public function setLikeJob($jobName='')
 	{
 		$weibo = Weibo::where('wb_mid', $this->mid)->first();
 		for($page=1;$page<=$weibo->wb_like_page;$page++){
@@ -57,9 +55,12 @@ class GetLike
 			//插入表数据
 			$like_job = Wb_like_job::create( [ 'mid' => $this->mid, 'j_like_page' => $page, ]);
 			//设置job
-			$job = (new GetLikeContentJob($like_job))->delay(10);
-			//多进程时候使用命名
-// 			$job = (new GetLikeContentJob($like_job))->onQueue('GetLike')->delay(10);
+			if(empty($jobName)){
+				$job = (new GetLikeContentJob($like_job))->delay($this->delay);
+			}
+			else{
+				$job = (new GetLikeContentJob($like_job))->onQueue($jobName)->delay($this->delay);
+			}
 			dispatch($job);
 		}
 	}
@@ -116,17 +117,17 @@ class GetLike
 				
 				//储存用户信息
 				$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
-				//更新时不必改动项
+				//后台执行抓取用户信息程序
 				if(!$wbUser->exists){
 					$wbUser->uid = $uid;
+					$href = $row->filter('a')->attr('href');
+					if(preg_match('/\/(\w+)$/', $href , $m)){
+						$wbUser->usercard = $m[1];
+					}
+					$wbUser->username = $row->filter('a>img')->attr('title');
+					$wbUser->photo_url = $row->filter('a>img')->attr('src');
+					$wbUser->save();
 				}
-				$href = $row->filter('a')->attr('href');
-				if(preg_match('/\/(\w+)$/', $href , $m)){
-					$wbUser->usercard = $m[1];
-				}
-				$wbUser->username = $row->filter('a>img')->attr('title');
-				$wbUser->photo_url = $row->filter('a>img')->attr('src');
-				$wbUser->save();
 			
 				$like = Wb_like::firstOrNew(['mid' => $this->mid, 'uid'=>$uid]);
 				//更新时不必改动项

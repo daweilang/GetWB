@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Wb_user;
 use App\Jobs\GetUserInfoJob;
 
-use App\Libraries\Contracts\GetWeiboInfo;
 
 /**
  * 抓取微博用户信息
@@ -18,6 +17,10 @@ use App\Libraries\Contracts\GetWeiboInfo;
 
 class WeiboUsersController extends Controller
 {
+	//执行延时
+	public $delay = 0;
+	//对了名称开关
+	public $jobName = FALSE;
 	
 	//设置组名
 	public function __construct()
@@ -25,6 +28,11 @@ class WeiboUsersController extends Controller
 		view()->share('groupName', 'weibo');
 		view()->share('routeName', 'users');
 		view()->share('path', 'admin/users');
+		
+		//获得全局延时时间设置
+		if(config('queue.delay')){
+			$this->delay = config('queue.delay');
+		}
 	}
 	
     //
@@ -54,8 +62,12 @@ class WeiboUsersController extends Controller
     		return redirect()->back()->withInput()->withErrors('输入微博地址错误！');
     	}  	
 		//将任务添加到队列，获得微博信息
-    	$job = (new GetUserInfoJob($usercard))->delay(10);
-//     	$job = (new GetUserInfoJob($usercard))->onQueue('GetUserInfo')->delay(10);
+		if($this->jobName){
+			$job = (new GetUserInfoJob($usercard))->onQueue('GetUserInfo')->delay($this->delay);
+		}
+		else{
+			$job = (new GetUserInfoJob($usercard))->delay($this->delay);
+		}
     	$this->dispatch($job);
     	return view('admin/msg', ['notice'=>'已经设置后台任务获取微博用户信息，请稍后访问']);
     }
@@ -85,8 +97,12 @@ class WeiboUsersController extends Controller
     	$weibo->wb_status = '2'; //再次分析
     	 
     	//将任务添加到队列，获得微博信息
-    	$job = (new GetUserInfoJob($usercard))->delay(10);
-    //     	$job = (new GetUserInfoJob($usercard))->onQueue('GetUserInfo')->delay(10);
+    	if($this->jobName){
+    		$job = (new GetUserInfoJob($usercard))->onQueue('GetUserInfo')->delay($this->delay);
+    	}
+    	else{
+    		$job = (new GetUserInfoJob($usercard))->delay($this->delay);
+    	}
     	$this->dispatch($job);
     	return view('admin/msg', ['notice'=>'已经设置后台任务获取微博用户信息，请稍后访问']);
     }

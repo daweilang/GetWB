@@ -56,6 +56,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::get('authorize/fail', function(){return view('admin/weibo/fail',['groupName' => 'admin']);});
 
 	
+	/* ================== 完全分析用户数据系统 ================== */
+	Route::resource('complete', 'CompleteController');
+	
+	
 	/* ================== 返回提示信息 ================== */
 	Route::get('message/{status?}/{msg?}', function($status=null, $msg=''){		
 			if($msg){
