@@ -49,7 +49,7 @@ class GetWeiboAllJob extends Job implements ShouldQueue
     public function handle()
     {
     	//只有微博状态为未分析时候才有效
-    	if(in_array($this->weibo->wb_status, [0, 2])){
+    	if(in_array($this->weibo->status, [0, 2])){
     		
     		###分析微博页的业务逻辑
 	    	$getContent = new GetWeiboInfo($this->weibo);	    	

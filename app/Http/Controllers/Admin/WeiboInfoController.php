@@ -8,7 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Weibo;
 
-// use App\Jobs\GetWeiboJob;
+use App\Jobs\GetWeiboJob;
 use App\Jobs\GetWeiboAllJob;
 
 use App\Libraries\Contracts\GetWeiboInfo;
@@ -61,7 +61,6 @@ class WeiboInfoController extends Controller
     	$weibo = new Weibo(); 
     	$weibo->wb_name = $request->get('wb_name'); 
     	$weibo->wb_url = $request->get('wb_url'); 
-//     	$weibo->user_id = $request->user()->id; 
     
     	if ($weibo->save()) {
 			//将任务添加到队列，获得微博信息
@@ -94,13 +93,16 @@ class WeiboInfoController extends Controller
     	$weibo = Weibo::find($id);
     	$weibo->wb_name = $request->get('wb_name');
     	$weibo->wb_url = $request->get('wb_url');
-    	$weibo->wb_status = '2'; //再次分析
+    	$weibo->status = '2'; //再次分析
     	 
     	if($weibo->save()){
     		//将任务添加到队列，获得微博信息
-    		$job = (new GetWeiboAllJob($weibo))->delay(10);
-    		//多进程时候使用队列命名
-//     		$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay(10);
+    		if($this->jobName){
+    			$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
+    		}
+    		else{
+    			$job = (new GetWeiboAllJob($weibo))->delay($this->delay);
+    		}
     		$this->dispatch($job);
     		return redirect('admin/weibo');
     	}

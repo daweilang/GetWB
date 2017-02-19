@@ -7,7 +7,6 @@ namespace App\Libraries\Classes;
  * @author daweilang
  */
 
-use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class WeiboContent extends CurlHandler

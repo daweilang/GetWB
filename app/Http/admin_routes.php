@@ -58,6 +58,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	
 	/* ================== 完全分析用户数据系统 ================== */
 	Route::resource('complete', 'CompleteController');
+	Route::get('complete/{uid}/weibos', 'CompleteController@weibos');
+	Route::get('complete/settingWB/{uid}', 'CompleteController@settingWB');
 	
 	
 	/* ================== 返回提示信息 ================== */

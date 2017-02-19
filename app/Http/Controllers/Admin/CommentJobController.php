@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Weibo;
 use App\Models\Wb_comment_job;
@@ -32,7 +29,7 @@ class CommentJobController extends Controller
     //
     public function index($mid)
     {
-    	$weibo = Weibo::where('wb_mid', $mid)->first();
+    	$weibo = Weibo::where('mid', $mid)->first();
     	$data = Wb_comment_job::where('mid', $mid)->paginate(15);
     	return view('admin/comment/comment_job', ['weibo'=>$weibo, 'comments'=>$data]);
     }

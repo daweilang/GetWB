@@ -20,7 +20,7 @@ class CreateWbCompletesTable extends Migration
     		$table->integer('fans')->comment('已统计的fans');
     		$table->integer('follow')->comment('已统计的关注');
     		$table->integer('weibos')->comment('已统计的微博');
-    		$table->tinyInteger('status')->comment('获取用户状态');
+    		$table->tinyInteger('status')->comment('获取用户状态, 0, 未获取；1，已抓取；2，设置任务；3，重新抓取；4，失败');
     		$table->timestamps();
     		$table->primary('uid');
     	});

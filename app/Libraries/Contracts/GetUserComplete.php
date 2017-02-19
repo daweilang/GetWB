@@ -1,8 +1,8 @@
 <?php
 
 /**
- *  GetComment.php 抓取评论相关
- *  该程序为旧接口，评论和评论回复一起输出，没有父子关系
+ *  GetUserComplete.php 抓取用户所有微博数据
+ *  使用cn抓取，便于分析
  * @copyright			(C) daweilang
  * @license				https://github.com/daweilang/
  *
@@ -54,9 +54,9 @@ class GetUserComplete
 	
 	
 	/**
-	 * 获得评论的html分析
-	 * @param $commentHtml 评论的html
-	 * @param unknown $file 评论储存的html页面
+	 * cn的用户html分析
+	 * @param $userHtml html
+	 * @param unknown $file 储存的html页面
 	 */
 	public function explainUserWeibo($userHtml, $file ='')
 	{

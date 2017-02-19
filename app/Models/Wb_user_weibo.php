@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Wb_user_weibo extends Model
 {
-	
+	protected $fillable = ['uid', 'code'];
 }

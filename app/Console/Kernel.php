@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -13,7 +14,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        // Commands\Inspire::class,
+    	Commands\CompleteWeibo::class,
+		Commands\CompleteWeiboJob::class,
+//     	Commands\SendEmails::class,
     ];
 
     /**
@@ -24,7 +27,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+    	/**
+    	 * 分两步获得微博数据，首先获得微博完整信息
+    	 */
+    	$schedule->command('comwbinfo')->everyMinute();
+    	$schedule->command('comwbjob')->everyMinute();
+//      $schedule->call(function () {
+//         	DB::table('failed_jobs')->delete();
+//      })->everyMinute();
     }
 }

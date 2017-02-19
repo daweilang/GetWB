@@ -15,7 +15,7 @@ class CreateWbCommentJobsTable extends Migration
         //
     	Schema::create('wb_comment_jobs', function (Blueprint $table) {
     		$table->increments('j_id');
-    		//微博id，对应wb_mid
+    		//微博id，对应mid
     		$table->bigInteger('mid');
     		//页号
     		$table->integer('j_comment_page')->unsigned()->default(0);

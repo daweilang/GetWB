@@ -1,8 +1,10 @@
 <?php
 
 /**
- *  GetComment.php 抓取评论相关
- *  该程序为旧接口，评论和评论回复一起输出，没有父子关系
+ *  GetLike.php 抓取赞相关, 基础功能
+ *  包括，设置任务 和 获取页面分析两种业务逻辑
+ *  设计储存表结构一致，该类接收参数为表模型名称
+ *  
  * @copyright			(C) daweilang
  * @license				https://github.com/daweilang/
  *
@@ -11,7 +13,8 @@
 
 namespace App\Libraries\Contracts;
 
-use App\Models\Weibo;
+use App\Libraries\Classes\GetWeiboHandler;
+
 use App\Models\Wb_like;
 use App\Models\Wb_like_job;
 use App\Models\Wb_user;
@@ -21,25 +24,21 @@ use App\Libraries\Classes\WeiboContent;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;
-use Illuminate\Support\Facades\App;
 
 
-class GetLike
+class GetLike extends GetWeiboHandler
 {	
-	//该条微博id
-	public $mid;
-	//微博所属用户id
-	public $oid;
-	//执行延时
-	public $delay;
 	
-	
-	public function __construct($mid)
+	public function __construct($mid, $model='')
 	{
-		$this->mid = $mid;
-		//获得全局延时时间设置
-		if(config('queue.delay')){
-			$this->delay = config('queue.delay');
+		$this->mid = $mid;	
+		
+		/**
+		 * 没有指定使用模型时，默认使用weibos表数据
+		 * @var model name
+		 */
+		if($model){
+			$this->model = $model;
 		}
 	}
 	
@@ -47,14 +46,22 @@ class GetLike
 	/**
 	 * 根据赞页数，设置评论页队列任务
 	 */
-	public function setLikeJob($jobName='')
+	public function setJob($jobName='')
 	{
-		$weibo = Weibo::where('wb_mid', $this->mid)->first();
-		for($page=1;$page<=$weibo->wb_like_page;$page++){
-// 		for($page=1;$page<=3;$page++){
-			//插入表数据
-			$like_job = Wb_like_job::create( [ 'mid' => $this->mid, 'j_like_page' => $page, ]);
-			//设置job
+		$model = "\App\Models\\$this->model";
+		$weibo = $model::where('mid', $this->mid)->first();
+		
+		for($page=1;$page<=$weibo->like_page;$page++){
+			
+			/**
+			 * like任务表登记任务
+			 * @var \App\Models\Wb_like_job $like_job
+			 */
+			$like_job = Wb_like_job::create( [ 'mid' => $this->mid, 'j_like_page' => $page, 'model'=>$this->model]);
+			
+			/**
+			 * 设置任务 $like_job 数据表储存了需要抓取数据的来源
+			 */
 			if(empty($jobName)){
 				$job = (new GetLikeContentJob($like_job))->delay($this->delay);
 			}
@@ -68,14 +75,17 @@ class GetLike
 	/**
 	 * 抓取评论页面写入文件
 	 */
-	public function getLikeHtml($page)
+	public function getHtml($page)
 	{
-		//赞接口地址
-		$likeUrl = sprintf(config('weibo.WeiboInfo.likeUrl'), $this->mid, $page);
+		/**
+		 * 赞接口地址
+		 */
+		$this->thisUrl = sprintf(config('weibo.WeiboInfo.likeUrl'), $this->mid, $page);
+		
 		$file = "wbHtml/$this->mid/like_$page";
 		$wb = new WeiboContent();
 		//抓取
-		$content = $wb->getWBHtml($likeUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
+		$content = $wb->getWBHtml($this->thisUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
 		
 		$array = json_decode($content, true);
 		if(!is_array($array) || $array['code'] !== '100000'){
@@ -96,7 +106,7 @@ class GetLike
 	 * @param $html 赞的html
 	 * @param unknown $file 评论储存的html页面
 	 */
-	public function explainLikePage($html, $file ='')
+	public function explainPage($html, $file ='')
 	{
 		if($file && Storage::exists($file)){
 			//该页面应该是html
@@ -106,8 +116,9 @@ class GetLike
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($html);
 		
-		$weibo = Weibo::where('wb_mid', $this->mid)->first();
-		$oid = $weibo->wb_userid;
+		$model = "\App\Models\\$this->model";
+		$weibo = $model::where('mid', $this->mid)->first();
+		$oid = $weibo->uid;
 		
 		$crawler->filterXPath('//div[@class="WB_emotion"]')->filter('li')->each(function (Crawler $row) use ($oid) {
 			
@@ -136,9 +147,9 @@ class GetLike
 					$like->uid = $uid;
 					$like->oid = $oid;
 					$like->save();
-				}
-				
+				}				
 			}
 		});
 	}
+
 }

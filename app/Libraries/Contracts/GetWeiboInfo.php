@@ -122,16 +122,16 @@ class GetWeiboInfo
 			Storage::put($likeFile, $content, true);
 			
 			if(preg_match($this->config['WeiboInfo']['oid'], $wbHtml , $m)){
-				$this->weibo->wb_userid = $m[1];
+				$this->weibo->uid = $m[1];
 			}
 			
-			$this->weibo->wb_title = $title;
-			$this->weibo->wb_mid = $this->mid;
-			$this->weibo->wb_comment_page = $pageCommnetData['totalpage'];
-			$this->weibo->wb_comment_total = $pageCommnetData['count'];
-			$this->weibo->wb_like_page = $pageLikeData['totalpage'];
-			$this->weibo->wb_like_total = $pageLikeData['count'];
-			$this->weibo->wb_status = 1;
+			$this->weibo->title = $title;
+			$this->weibo->mid = $this->mid;
+			$this->weibo->comment_page = $pageCommnetData['totalpage'];
+			$this->weibo->comment_total = $pageCommnetData['count'];
+			$this->weibo->like_page = $pageLikeData['totalpage'];
+			$this->weibo->like_total = $pageLikeData['count'];
+			$this->weibo->status = 1;
 			$this->weibo->save();
 				
 			return true;
@@ -174,11 +174,11 @@ class GetWeiboInfo
 			$data = json_decode($content, true);
 			$pageData = $this->getWeiboCommnetInfo($data);
 
-			$this->weibo->wb_title = $m['1'];
-			$this->weibo->wb_mid = $this->mid;
-			$this->weibo->wb_comment_page = $pageData['totalpage'];
-			$this->weibo->wb_comment_total = $pageData['count'];
-			$this->weibo->wb_status = 1;
+			$this->weibo->title = $m['1'];
+			$this->weibo->mid = $this->mid;
+			$this->weibo->comment_page = $pageData['totalpage'];
+			$this->weibo->comment_total = $pageData['count'];
+			$this->weibo->status = 1;
 			$this->weibo->save();
 			
 			$commentFile = "wbHtml/weibo_". $this->weibo->id ."_commnet";

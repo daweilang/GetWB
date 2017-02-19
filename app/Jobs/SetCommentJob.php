@@ -42,7 +42,7 @@ class SetCommentJob extends Job implements ShouldQueue
     public function handle()
     {
     	$commentJob = new GetComment($this->mid);
-    	$commentJob = $commentJob->setCommentJob();
+    	$commentJob = $commentJob->setJob();
     	$this->job_log->updateLog(['status'=>1]);
     }
     

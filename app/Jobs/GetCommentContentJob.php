@@ -37,8 +37,8 @@ class GetCommentContentJob extends Job implements ShouldQueue
     public function handle()
     {
     	$getCommentJob = new GetComment($this->wb_comment_job->mid);
-    	$content = $getCommentJob->getCommentHtml($this->wb_comment_job->j_comment_page);
-    	$getCommentJob->explainCommentPage($content);
+    	$content = $getCommentJob->getHtml($this->wb_comment_job->j_comment_page);
+    	$getCommentJob->explainPage($content);
     	
     	//抓取完成后的状态
     	$this->wb_comment_job->j_status = '2';

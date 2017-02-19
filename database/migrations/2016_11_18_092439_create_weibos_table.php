@@ -15,17 +15,17 @@ class CreateWeibosTable extends Migration
         //
     	Schema::create('weibos', function (Blueprint $table) {
     		$table->increments('id');
-    		$table->bigInteger('wb_userid');
-    		$table->string('wb_name', '150');
+    		$table->bigInteger('mid')->comment('微博id');
+    		$table->string('wb_name', '150')->comment('微博标题');
+    		$table->string('code','30')->comment('短域名');
+    		$table->bigInteger('uid')->comment('微博用户id');
     		$table->string('wb_url');
-    		$table->string('wb_title', '150');
-    		//该条微博id，评论和攒对应的id，
-    		$table->bigInteger('wb_mid');
-    		$table->integer('wb_comment_page')->unsigned()->default(0);
-    		$table->integer('wb_comment_total')->unsigned()->default(0);
-    		$table->integer('wb_like_page')->unsigned()->default(0);
-    		$table->integer('wb_like_total')->unsigned()->default(0);
-    		$table->tinyInteger('wb_status')->unsigned()->default(0);
+    		$table->string('title', '255');    		
+    		$table->integer('comment_page')->unsigned()->default(0);
+    		$table->integer('comment_total')->unsigned()->default(0);
+    		$table->integer('like_page')->unsigned()->default(0);
+    		$table->integer('like_total')->unsigned()->default(0);
+    		$table->tinyInteger('status')->unsigned()->default(0);
     		$table->timestamps();
     		$table->timestamp('comment_up');
     	});

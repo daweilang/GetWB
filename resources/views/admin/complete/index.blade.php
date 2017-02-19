@@ -58,11 +58,11 @@
 
 										<td class="sorting_1">{{ $weibo->username }}</a></td>
 										<td class="center">{{ $weibo->usercard }}</td>
-										<td class="center ">{{ $weibo->weibos }}</td>
+										<td class="center "><a href="{{ url($path.'/'.$weibo->uid.'/weibos') }}">{{ $weibo->weibos }}</a></td>
 										<td class="center ">{{ $weibo->fans }}</td>
 										<td class="center ">{{ $weibo->weibos }}</td>
 										<td class="center ">{{ $weibo->updated_at }}</td>
-										<td class="center "><a href="{{ url('admin/weibo/'.$weibo->id.'/edit') }}" class="btn btn-success">编辑</a></td>
+										<td class="center "><a href="{{ url($path.'/'.$weibo->uid.'/edit') }}" class="btn btn-success">编辑</a></td>
 									</tr>
 									@endforeach
 								</tbody>

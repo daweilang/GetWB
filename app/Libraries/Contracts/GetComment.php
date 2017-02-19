@@ -11,10 +11,11 @@
 
 namespace App\Libraries\Contracts;
 
-use App\Models\Weibo;
-use App\Models\Wb_user;
+use App\Libraries\Classes\GetWeiboHandler;
+
 use App\Models\Wb_comment_job;
 use App\Models\Wb_comment;
+use App\Models\Wb_user;
 
 use App\Jobs\GetCommentContentJob;
 use App\Libraries\Classes\WeiboContent;
@@ -23,31 +24,31 @@ use Symfony\Component\DomCrawler\Crawler;
 use Storage;
 
 
-class GetComment
+class GetComment extends GetWeiboHandler
 {	
-	public $mid;
-	//执行延时
-	public $delay = 0;
 	
-	public function __construct($mid)
+	public function __construct($mid, $model='')
 	{
 		$this->mid = $mid;
-		//获得全局延时时间设置
-		if(config('queue.delay')){
-			$this->delay = config('queue.delay');
+	
+		/**
+		 * 没有指定使用模型时，默认使用weibos表数据
+		 * @var model name
+		 */
+		if($model){
+			$this->model = $model;
 		}
 	}
-	
 	
 	
 	/**
 	 * 根据评论页数，设置评论页队列任务
 	 */
-	public function setCommentJob($jobName='')
+	public function setJob($jobName='')
 	{
-		$weibo = Weibo::where('wb_mid', $this->mid)->first();
-		for($page=1;$page<=$weibo->wb_comment_page;$page++){
-// 		for($page=1;$page<=3;$page++){
+		$model = "\App\Models\\$this->model";
+		$weibo = $model::where('mid', $this->mid)->first();
+		for($page=1;$page<=$weibo->comment_page;$page++){
 			//插入表数据
 			$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, ]);
 			//设置job
@@ -65,14 +66,14 @@ class GetComment
 	/**
 	 * 抓取评论页面写入文件
 	 */
-	public function getCommentHtml($page)
+	public function getHtml($page)
 	{
 		//评论页地址
-		$commentUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
+		$this->thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
 		$file = "wbHtml/$this->mid/comment_$page";
 		$wb = new WeiboContent();
 		//抓取
-		$content = $wb->getWBHtml($commentUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
+		$content = $wb->getWBHtml($this->thisUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
 		
 		$array = json_decode($content, true);
 		if(!is_array($array) || $array['code'] !== '100000'){
@@ -93,7 +94,7 @@ class GetComment
 	 * @param $commentHtml 评论的html
 	 * @param unknown $file 评论储存的html页面
 	 */
-	public function explainCommentPage($commentHtml, $file ='')
+	public function explainPage($commentHtml, $file ='')
 	{
 		if($file && Storage::exists($file)){
 			//该页面应该是html

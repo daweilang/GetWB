@@ -76,7 +76,7 @@
 										<td class="center ">{{ $weibo->updated_at }}</td>
 										<td class="center ">
 											<a href="{{ url('admin/weibo/'.$weibo->id.'/edit') }}" class="btn btn-success">编辑</a> @if($weibo->wb_mid) 
-											<a href="{{ url('admin/commentJob/'.$weibo->wb_mid) }}" class="btn btn-danger">评论详情</a> @endif</td>
+											<a href="{{ url('admin/commentJob/'.$weibo->mid) }}" class="btn btn-danger">评论详情</a> @endif</td>
 									</tr>
 									@endforeach
 								</tbody>

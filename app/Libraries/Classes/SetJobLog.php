@@ -6,7 +6,7 @@ use App\Models\Wb_setjob_log;
 
 /**
  * setjoblog基础类
- * 储存队列执行情况
+ * 储存设置队列情况
  * @author daweilang
  *
  */

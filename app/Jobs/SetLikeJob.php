@@ -40,7 +40,7 @@ class SetLikeJob extends Job implements ShouldQueue
     public function handle()
     {
     	$likeJob = new GetLike($this->mid);
-    	$likeJob->setLikeJob();
+    	$likeJob->setJob();
     	$this->job_log->updateLog(['status'=>1]);
     }
     
