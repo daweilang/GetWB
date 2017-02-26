@@ -19,8 +19,8 @@
 	            <div class="panel panel-default">
 	                <div class="panel-heading">用户信息</div>
 	                <div class="panel-heading"><a href="http://weibo.cn/{{ $userinfo->uid }}" target='_bank'>{{ $userinfo->username }}</a></div>
-	                <div class="panel-body">截止 {{ $userinfo->updated_at }},  共 {{ $userinfo->weibos }} 条微博数据</div>
-	                <div class="panel-body">抓取 {{ $count }} 条数据</div>
+	                <div class="panel-body">截止 {{ $userinfo->updated_at }},  显示发布 {{ $userinfo->weibos }} 条微博数据</div>
+	                <div class="panel-body">抓取 {{ $count }} 条微博数据</div>
 	                <div class="panel-body">设置任务 获取weibo信息 &nbsp;&nbsp;<a href="{{ url('admin/complete/settingWB/'.$userinfo->uid) }}" class="btn btn-danger">设置</a></div>
 	             </div>
 	         </div>
@@ -80,7 +80,7 @@
 										<td class="center"><a href="http://weibo.com/{{ $userinfo->uid }}/{{ $weibo->code }}" target='_bank'>{{ $weibo->code }}</a></td>
 										<td class="center">{{ $weibo->comment_total }}</td>
 										<td class="center">{{ $weibo->like_total }}</td>
-										<td class="center">{{ $weibo->repost_total }}</td>
+										<td class="center">{{ $weibo->forward_total }}</td>
 										<td class="center">{{ $weibo->wb_created }}</td>
 										<td class="center">{{ $weibo->status }}</td>
 									</tr>

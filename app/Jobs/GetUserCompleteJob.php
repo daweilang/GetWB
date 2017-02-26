@@ -7,7 +7,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-use App\Libraries\Contracts\GetUserInfo;
 use App\Libraries\Contracts\GetUserComplete;
 
 class GetUserCompleteJob extends Job implements ShouldQueue

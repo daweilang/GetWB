@@ -18,10 +18,12 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	
 	/* ================== test ================== */
 	Route::get('test', 'TestController@exampleTest');
+	Route::get('test/redis', 'TestController@exampleRedis');
 	Route::get('crawler', 'TestController@exampleCrawler');
 	
 	/* ================== weibo ================== */
 	Route::resource('weibo', 'WeiboInfoController');
+	Route::get('weibo/test/{mid}', 'WeiboInfoController@exampleTest');
 
 	/* ================== users ================== */
 	Route::resource('users', 'WeiboUsersController');
@@ -60,6 +62,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::resource('complete', 'CompleteController');
 	Route::get('complete/{uid}/weibos', 'CompleteController@weibos');
 	Route::get('complete/settingWB/{uid}', 'CompleteController@settingWB');
+	Route::get('complete/test/{uid}', 'CompleteController@exampleTest');
 	
 	
 	/* ================== 返回提示信息 ================== */

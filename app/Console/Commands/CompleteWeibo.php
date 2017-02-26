@@ -8,6 +8,15 @@ use App\Libraries\Contracts\CompleteWeiboInfo;
 
 use App\Models\Wb_user_weibo;
 
+/**
+ * 2017-02-25 使用com用户首页一次获得用户完整信息，废除该流程
+ * $schedule->command('comwbinfo')->everyMinute();
+ * @author daweilang
+ *
+ */
+
+
+
 class CompleteWeibo extends Command
 {
     /**
@@ -68,21 +77,15 @@ class CompleteWeibo extends Command
 					
     	if($this->weibo){
     		
-    		/**
-    		 * 设置任务
-    		 */
+    		//
     		$this->weibo->status = -1;
     		$this->weibo->save();
 	    	
-    		/**
-    		 * 抓取com微博页面补全信息
-    		 */
+    		//抓取com微博页面补全信息
     		$weiboCom = new CompleteWeiboInfo($this->weibo);
     		$weiboCom->Process();
     		
-    		/**
-    		 * 判断抓取是否成功
-    		 */
+    		//判断抓取是否成功
 	    	if($this->weibo->mid)
 	    	{ 			
 	    		$this->weibo->status = 1;    		

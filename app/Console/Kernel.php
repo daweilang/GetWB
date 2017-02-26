@@ -14,9 +14,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-    	Commands\CompleteWeibo::class,
+		//定时任务，设置抓取用户的全部微博
+		Commands\CompleteWeibo::class,
 		Commands\CompleteWeiboJob::class,
-//     	Commands\SendEmails::class,
     ];
 
     /**
@@ -27,13 +27,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-    	/**
-    	 * 分两步获得微博数据，首先获得微博完整信息
-    	 */
-    	$schedule->command('comwbinfo')->everyMinute();
-    	$schedule->command('comwbjob')->everyMinute();
-//      $schedule->call(function () {
-//         	DB::table('failed_jobs')->delete();
-//      })->everyMinute();
+//     	$schedule->command('comwbjob')->everyMinute();
     }
 }

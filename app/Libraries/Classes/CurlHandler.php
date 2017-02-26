@@ -72,7 +72,8 @@ abstract class CurlHandler
 		}
 		
 		$info = curl_getinfo($ch);
-		curl_close($ch);
+// 		var_dump($info);
+// 		curl_close($ch);
 		return $data;
 	}
 	
@@ -128,6 +129,10 @@ abstract class CurlHandler
 
 		//连接结束后，比如，调用 curl_close 后，保存 cookie 信息的文件。
 		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+
+		//如果你想CURL报告每一件意外的事情，设置这个选项为一个非零值。
+		curl_setopt ($c, CURLOPT_VERBOSE, TRUE);
+// 		curl_setopt($c, CURLOPT_STDERR, $fp);
 
 		//执行
 		$data = curl_exec($ch);

@@ -36,12 +36,13 @@ class GetCommentContentJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-    	$getCommentJob = new GetComment($this->wb_comment_job->mid);
+    	$getCommentJob = new GetComment($this->wb_comment_job->mid,$this->wb_comment_job->model);
     	$content = $getCommentJob->getHtml($this->wb_comment_job->j_comment_page);
-    	$getCommentJob->explainPage($content);
+    	$page_total = $getCommentJob->explainPage($content);
     	
     	//抓取完成后的状态
     	$this->wb_comment_job->j_status = '2';
+    	$this->wb_comment_job->j_comment_total = $page_total;
     	$this->wb_comment_job->save();
     }
     

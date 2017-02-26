@@ -193,15 +193,15 @@ EOT;
     	$cookieCurl =  config('weibo.CookieFile.curl');
     	
     	if(!file_exists($cookieWeibo)){
-    		return view("admin/error", [ 'error' => '未获得授权信息，请重新登录！']);
+    		return view("admin/error", [ 'error' => '授权信息不存在，请重新登录！']);
     	}
     	
     	$wb = new \App\Libraries\Classes\WeiboContent();
     	$content = $wb->getWBHtml($url, $cookieWeibo, $cookieCurl);
     	//需要根据返回结果判断
-//     	if(empty($content)){
-//     		return view("admin/error", [ 'error' => '未获得授权信息，请重新登录！']);
-//     	}
+    	if(empty($content)){
+    		return view("admin/error", [ 'error' => '未获得授权信息，请重新登录！']);
+    	}
     	return view("admin/authorize/test_show", ['html'=>$content]);
     }
     

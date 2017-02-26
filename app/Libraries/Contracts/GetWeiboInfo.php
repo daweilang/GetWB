@@ -137,7 +137,7 @@ class GetWeiboInfo
 			return true;
 		}
 		else{
-			Log::info("无法获得微博页面");
+			#Log::info("无法获得微博页面");
 			throw new \Exception("无法获得微博页面");
 			return false;
 		}

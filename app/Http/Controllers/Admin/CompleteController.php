@@ -4,40 +4,49 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Libraries\Classes\TraitGetConfig;
 use App\Models\Wb_complete;
 use App\Models\Wb_user_weibo;
 
 use App\Jobs\GetUserCompleteJob;
-use App\Jobs\GetCompleteWBJob;
+use App\Jobs\SetCompleteWBJob;
 
 
 /**
- * 综合分析微博用户数据，从用户所有微博到微博的评论，赞，以及用户的粉丝
+ * 系统完整的获得微博用户数据，从用户微博首页开始，抓取所有微博，
+ * 获得微博的评论、赞，
+ * 以微博的评论和赞数据为基础，交叉比对用户是否关注微博用户，以得到的微博用的活跃粉丝
  * @author daweilang
- * status的几种状态， 0：设置，1：完成信息获取，2：重新设置，3：获取失败
+ * status的几种状态， 获取用户信息状态： 0,未获取；1，已抓取；2，重新抓取；3，设置抓取全部微博任务；4，任务设置完成；-1，抓取用户信息失败；-3，设置抓取微博任务失败
  */
 
 class CompleteController extends Controller
 {
+	/**
+	 * 自定义trait，获得需要的配置
+	 */
+	use TraitGetConfig;
 	
-	//执行延时
-	public $delay = 10;
 	//队列名称开关
 	public $jobName = FALSE;
 	
-	//设置组名
+	/**
+	 * 设置队列延时时间设置
+	 * 默认由TraitGetConfig设置
+	 * @var integer
+	 */
+	public $delay = 3;
+	
 	public function __construct()
 	{
+		//设置组名
 		view()->share('groupName', 'complete');		
 		view()->share('routeName', 'index');
 		view()->share('path', 'admin/complete');
 		
-		//获得全局延时时间设置
-		if(config('queue.delay')){
-			$this->delay = config('queue.delay');
-		}
+		//获得队列任务配置
+		$this->getQueueConf();
 	}
 	
     //
@@ -66,7 +75,7 @@ class CompleteController extends Controller
     	else{
     		return redirect()->back()->withInput()->withErrors('输入微博用户地址错误！');
     	}
-    	$this->setJob($usercard);
+    	$this->setThisJob($usercard);
     	return view('admin/msg', ['notice'=>'已经设置后台任务获取微博用户信息，请稍后访问']);
     }
     
@@ -82,12 +91,11 @@ class CompleteController extends Controller
     public function update(Request $request, $id)
     {
     	// 数据验证
-    	
     	$weibo = Wb_complete::find($id);
     	$weibo->status = '2'; //再次分析
     	 
     	if($weibo->save()){   		
-			$this->setJob($weibo->usercard);
+			$this->setThisJob($weibo->usercard);
     		return view('admin/msg', ['notice'=>'已经设置后台任务获取微博用户信息，请稍后访问']);
     	}
     	else{
@@ -106,7 +114,7 @@ class CompleteController extends Controller
     	$userinfo = Wb_complete::find($id);
     	$userinfo['face'] = "http://weibo.com/u/".$userinfo['uid'];
     	
-    	$weibos = Wb_user_weibo::where("uid",$userinfo['uid'])->paginate(15);
+    	$weibos = Wb_user_weibo::where("uid",$userinfo['uid'])->paginate(30);
     	$count = Wb_user_weibo::where("uid",$userinfo['uid'])->count();
     	
     	return view('admin/complete/weibos', ['userinfo' => $userinfo, 'weibos' => $weibos, 'count'=>$count]);
@@ -114,8 +122,8 @@ class CompleteController extends Controller
     
     
     /**
-     * 设置获取全部微博任务，页面设置
-     * 设计原理，获取weibo.cn的页面分析，
+     * 设置获取全部微博任务，设置job任务
+     * 接口 http://weibo.com/p/aj/v6/mblog/mbloglist?ajwvr=6&page=%d&domain=%d&id=%d
      * @param unknown $uid 用户id
      * @return
      */
@@ -123,10 +131,10 @@ class CompleteController extends Controller
     {
     	if($this->jobName){
     		//多进程时候使用命名
-    		$job = (new GetCompleteWBJob($uid))->onQueue('GetCompleteWBJob')->delay($this->delay);
+    		$job = (new SetCompleteWBJob($uid))->onQueue('GetCompleteWBJob')->delay($this->delay);
     	}
     	else{
-    		$job = (new GetCompleteWBJob($uid))->delay($this->delay);
+    		$job = (new SetCompleteWBJob($uid))->delay($this->delay);
 	    	
     	}
     	$this->dispatch($job);
@@ -134,8 +142,11 @@ class CompleteController extends Controller
     }
     
     
-    
-    private function setJob($usercard)
+    /**
+     * 获得用户信息
+     * @param unknown $usercard
+     */
+    private function setThisJob($usercard)
     {
     	//将任务添加到队列，获得微博信息
     	if($this->jobName){
@@ -147,29 +158,16 @@ class CompleteController extends Controller
     	$this->dispatch($job);
     }
     
-    public function test($uid){
-    	    $userinfo = Wb_complete::find($uid);
-    	   	$weibos = new \App\Libraries\Contracts\GetUserCompleteWB($userinfo);
-    	   	$weibos->getUserWeibos();
     
-   	    	$weibo = Wb_user_weibo::where(
-   	    			function ($query) {
-   	    				$query->where('status', '=', 0)->orWhere('status', '=', 3);
-   	    			}
-   	    		)->first();
-   	    		
-    	    if($weibo){
-    	    	$weibo->status = 2;
-    	   		$weibo->save();
-  	
-   		    	/**
-  		    	 * 抓取com微博页面补全信息
-   		    	 */    	
-    			    
-    	   		$weiboCom = new \App\Libraries\Contracts\CompleteWeiboInfo($weibo);
-    			$weiboCom->Process();
+    
+    public function exampleTest($uid){
     	
-    		    var_dump($weibo);
-    	    }
+//     	$getUserInfo = new \App\Libraries\Contracts\GetUserComplete('dailyjapan');
+//     	$getUserInfo->explainUserWeibo($getUserInfo->getUserHtml());
+		$userinfo = Wb_complete::where('uid', '1778181861')->first();
+    	$getUserInfo = new \App\Libraries\Contracts\GetCompleteWb($userinfo);
+//     	$getUserInfo->explainPage($getUserInfo->getHtml(38));
+    	$getUserInfo->explainPage("", "wbUserHtml/1778181861/weibos_637");
+    
     }
 }

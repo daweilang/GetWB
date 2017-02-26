@@ -10,7 +10,7 @@ use App\Libraries\Contracts\GetLike;
 use App\Models\Weibo;
 use Symfony\Component\DomCrawler\Crawler;
 use Storage;
-use Mockery\Expectation;
+use Illuminate\Support\Facades\Redis;
 
 class TestController extends Controller
 {
@@ -24,6 +24,26 @@ class TestController extends Controller
 //     	throw new \Exception("无法获取粉丝列表，请检查");
     	$getContent = new GetLike("4059409665160775");
     	$getContent->explainLikePage('', "wbHtml/$getContent->mid/like_1");
+    	
+    }
+    
+    /**
+     * 测试redis抓取
+     */
+    public function exampleRedis()
+    {
+    	$key = 'user:name:6';
+    	 
+    	$user = "aaaaa";
+    	if($user){
+    		//将用户名存储到Redis中
+    		Redis::set($key,$user);
+    	}
+    	echo "12345<br>";
+    	
+    	$redis = Redis::connection('fans');
+    	$redis->set('user:name:6', "bbbb");
+    	echo "22222<br>";
     	
     }
     

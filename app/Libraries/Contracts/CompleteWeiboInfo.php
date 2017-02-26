@@ -70,23 +70,6 @@ class CompleteWeiboInfo
 	}
 	
 	
-	/**
-	 * 判断微博cookie是否可用
-	 * 该判断需要对微博进行二次抓取，所以暂不使用
-	 */
-	public function weiboCookieIsUse()
-	{
-		//测试抓取
-		$wb_url = $this->getWeiboUrl();
-		$content = $wb->getWBHtml($wb_url, $this->cookieWeibo, $this->cookieCurl);
-		$isLogin = $wb->requiresLogin($content);
-		
-		if($isLogin){
-			throw new \Exception("微博登录失效，请重新授权");
-		}
-		return true;
-	}
-	
 	
 	/**
 	 * 根据传输的参数获得微博url
@@ -118,10 +101,9 @@ class CompleteWeiboInfo
 			throw new \Exception("微博地址错误");
 		}
 		
-		$content = $wb->getWBHtml($wb_url, $this->cookieWeibo, $this->cookieCurl);		
-		$isLogin = $wb->requiresLogin($content);
+		$content = $wb->getWBHtml($wb_url, $this->cookieWeibo, $this->cookieCurl);	
 		
-		if($isLogin){
+		if($wb->requiresLogin($content)){
 			throw new \Exception("微博登录失效，请重新授权");
 		}
 		
@@ -168,13 +150,13 @@ class CompleteWeiboInfo
 			Storage::put($commentFile, $content, true);
 			
 			
-			//获得赞页内容，获得赞页列表
-			$like = sprintf($this->config['WeiboInfo']['likeUrl'], $mid, 1);
-			$content = $wb->getWBHtml($like, $this->cookieWeibo, $this->cookieCurl);
-			$data = json_decode($content, true);
-			$pageLikeData = $this->getWeiboLikeInfo($data);
-			$likeFile = "{$this->filePath}/weibo_". $this->weibo->code ."_like";
-			Storage::put($likeFile, $content, true);
+// 			//获得赞页内容，获得赞页列表
+// 			$like = sprintf($this->config['WeiboInfo']['likeUrl'], $mid, 1);
+// 			$content = $wb->getWBHtml($like, $this->cookieWeibo, $this->cookieCurl);
+// 			$data = json_decode($content, true);
+// 			$pageLikeData = $this->getWeiboLikeInfo($data);
+// 			$likeFile = "{$this->filePath}/weibo_". $this->weibo->code ."_like";
+// 			Storage::put($likeFile, $content, true);
 			
 			
 			

@@ -19,6 +19,7 @@ class GetWeiboAllJob extends Job implements ShouldQueue
     
     //执行延时
     public $delay;
+    
     //任务名，true或false
     private $jobName = FALSE;
 
@@ -33,11 +34,8 @@ class GetWeiboAllJob extends Job implements ShouldQueue
         $this->weibo = $weibo;
         
         //获得全局延时时间设置
-        if(config('queue.delay')){
+        if(empty($this->delay)){
         	$this->delay = config('queue.delay');
-        }
-        else{
-        	$this->delay = 0;
         }
     }
 
@@ -69,14 +67,14 @@ class GetWeiboAllJob extends Job implements ShouldQueue
 	    	dispatch($job);
 	    	
 	    	//分析评论的业务逻辑采用队列模式
-	    	if($this->jobName){
-	    	//多进程时候使用命名
-	    		$job = (new SetCommentJob($getContent->mid))->onQueue('SetComment')->delay($this->delay);
-	    	}
-	    	else{
-	    		$job = (new SetCommentJob($getContent->mid))->delay($this->delay);
-	    	}
-	    	dispatch($job);
+// 	    	if($this->jobName){
+// 	    	//多进程时候使用命名
+// 	    		$job = (new SetCommentJob($getContent->mid))->onQueue('SetComment')->delay($this->delay);
+// 	    	}
+// 	    	else{
+// 	    		$job = (new SetCommentJob($getContent->mid))->delay($this->delay);
+// 	    	}
+// 	    	dispatch($job);
 
    			return true; 	
     	}

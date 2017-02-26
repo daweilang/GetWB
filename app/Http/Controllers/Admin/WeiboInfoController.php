@@ -4,17 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Weibo;
 
 use App\Jobs\GetWeiboJob;
 use App\Jobs\GetWeiboAllJob;
 
-use App\Libraries\Contracts\GetWeiboInfo;
 
 /**
- * 抓取微博管理
+ * 抓取单条微博管理
  * @author daweilang
  * wb_status的几种状态， 0：设置，1：完成信息获取，2：重新设置，3：获取失败
  */
@@ -23,7 +21,7 @@ class WeiboInfoController extends Controller
 {
 	
 	//执行延时
-	public $delay = 0;
+	public $delay = 1;
 	//对了名称开关
 	public $jobName = FALSE;
 	
@@ -34,7 +32,7 @@ class WeiboInfoController extends Controller
 		view()->share('path', 'admin/weibo');
 		
 		//获得全局延时时间设置
-		if(config('queue.delay')){
+		if(empty($this->delay)){
 			$this->delay = config('queue.delay');
 		}
 	}
@@ -65,7 +63,7 @@ class WeiboInfoController extends Controller
     	if ($weibo->save()) {
 			//将任务添加到队列，获得微博信息
 			if($this->jobName){
-				$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
+				$job = (new GetWeiboAllJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
 			}
 			else{
 				$job = (new GetWeiboAllJob($weibo))->delay($this->delay);
@@ -112,5 +110,12 @@ class WeiboInfoController extends Controller
     }
     
     
+    public function exampleTest($mid){
+    	
+    	$getUserInfo = new \App\Libraries\Contracts\GetLike("4030488252993648");
+    	$getUserInfo->explainPage($getUserInfo->getHtml(1139));
+//     	$getUserInfo->explainPage("", "wbHtml/$getUserInfo->mid/like_1139");
+    
+    }
     
 }

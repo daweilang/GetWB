@@ -38,10 +38,11 @@ class GetLikeContentJob extends Job implements ShouldQueue
     {
     	$getLikeJob = new GetLike($this->wb_like_job->mid, $this->wb_like_job->model);
     	$content = $getLikeJob->getHtml($this->wb_like_job->j_like_page);
-    	$getLikeJob->explainPage($content);
+    	$page_total = $getLikeJob->explainPage($content);
     	
     	//抓取完成后的状态
     	$this->wb_like_job->j_status = '2';
+    	$this->wb_like_job->j_like_total = $page_total;
     	$this->wb_like_job->save();
     }
     

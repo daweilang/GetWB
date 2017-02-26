@@ -29,12 +29,11 @@ class GetComment extends GetWeiboHandler
 	
 	public function __construct($mid, $model='')
 	{
+		parent::__construct();
+		
 		$this->mid = $mid;
 	
-		/**
-		 * 没有指定使用模型时，默认使用weibos表数据
-		 * @var model name
-		 */
+		//没有指定使用模型时，默认使用weibos表数据
 		if($model){
 			$this->model = $model;
 		}
@@ -44,22 +43,16 @@ class GetComment extends GetWeiboHandler
 	/**
 	 * 根据评论页数，设置评论页队列任务
 	 */
-	public function setJob($jobName='')
+	public function setJob($page='1', $jobName='')
 	{
 		$model = "\App\Models\\$this->model";
 		$weibo = $model::where('mid', $this->mid)->first();
 		for($page=1;$page<=$weibo->comment_page;$page++){
 			//插入表数据
-			$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, ]);
-			//设置job
-			if(empty($jobName)){
-				$job = (new GetCommentContentJob($comment_job))->delay($this->delay);
-			}
-			else{
-				//多进程时候使用命名
-				$job = (new GetCommentContentJob($comment_job))->onQueue($jobName)->delay($this->delay);
-			}
-			dispatch($job);
+			$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, 'model'=>$this->model]);
+			
+			//设置任务
+			$this->setQueueClass("GetCommentContentJob", $comment_job, $jobName);
 		}
 	}
 	
@@ -68,19 +61,23 @@ class GetComment extends GetWeiboHandler
 	 */
 	public function getHtml($page)
 	{
+		$this->getPage = $page;
+		
 		//评论页地址
 		$this->thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
+		
 		$file = "wbHtml/$this->mid/comment_$page";
+		$errorFile = "wbHtml/$this->mid/error_comment_$page";
+		
 		$wb = new WeiboContent();
 		//抓取
 		$content = $wb->getWBHtml($this->thisUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
 		
-		$array = json_decode($content, true);
-		if(!is_array($array) || $array['code'] !== '100000'){
-			Storage::put("wbHtml/$this->mid/error_$page", $content);
-			throw new \Exception("无法获取微博评论，请检查获取结果");
-		}
+		//获得微博返回的数组，同处理抓取异常
+		$array = $this->getHtmlArray($content, $errorFile);
+		
 		$html = $array['data']['html'];
+		
 		Storage::put($file, $html);
 		if(!Storage::exists($file)){
 			throw new \Exception("无法储存微博评论页面");
@@ -94,16 +91,22 @@ class GetComment extends GetWeiboHandler
 	 * @param $commentHtml 评论的html
 	 * @param unknown $file 评论储存的html页面
 	 */
-	public function explainPage($commentHtml, $file ='')
+	public function explainPage($html, $file ='')
 	{
 		if($file && Storage::exists($file)){
 			//该页面应该是html
-			$commentHtml = Storage::get($file);
+			$html = Storage::get($file);
 		}
 		$crawler = new Crawler();
-		$crawler->addHtmlContent($commentHtml);
+		$crawler->addHtmlContent($html);
 		
-		$crawler->filterXPath('//div[@class="list_li S_line1 clearfix"]')->each(function (Crawler $row) {		
+// 		$model = "\App\Models\\$this->model";
+// 		$weibo = $model::where('mid', $this->mid)->first();
+// 		$oid = $weibo->uid;
+		
+		$page_total = 0;
+		
+		$crawler->filterXPath('//div[@class="list_li S_line1 clearfix"]')->each(function (Crawler $row) use ($page_total ){		
 			$wbCommentId = $row->filterXPath('//div[@class="list_li S_line1 clearfix"]')->filter('div')->attr('comment_id');
 			$wbComment = Wb_comment::firstOrNew(['comment_id'=>$wbCommentId]);
 			//更新时不必改动项
@@ -136,6 +139,27 @@ class GetComment extends GetWeiboHandler
 				}	
 			}
 			
+			$page_total++;
 		});
+		
+		
+// 		if($crawler->filterXPath('//div[@class="W_pages"]')->count()){
+					
+// 				$last_page_text = $crawler->filterXPath('//div[@class="W_pages"]')->filterXPath('//span[contains(@action-type, "feed_list_page")]')->last()->text();
+			
+// 				//判断是否有下一页，有下一页则建立下一页任务
+// 				if($last_page_text && $last_page_text == '下一页'){
+// 					$this->setJob($this->getPage+1, "");
+// 				}
+// 				else{
+// 					//没有最后一页是尾页，停止设置抓取
+// 					//由于weibo任务是赞和转发，评论等多队列，所以无法判断单个状态
+// 					// 			$weibo->status=4;
+// 					// 			$weibo->save();
+// 				}
+// 		}
+			
+		return $page_total;
+		
 	}
 }

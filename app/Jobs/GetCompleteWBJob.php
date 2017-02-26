@@ -7,26 +7,25 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-use App\Libraries\Contracts\GetUserCompleteWB;
+use App\Libraries\Contracts\GetCompleteWB;
 use App\Models\Wb_complete;
+use App\Models\Wb_complete_job;
 
 class GetCompleteWBJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     
-    protected $uid;
-    protected $userinfo;
+    protected $wb_complete_job;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($uid)
+    public function __construct(Wb_complete_job $complete_page)
     {
-        //
-        $this->uid = $uid;
-        $this->userinfo = Wb_complete::find($uid);
+    	//
+    	$this->wb_complete_job = $complete_page;
     }
 
     /**
@@ -36,11 +35,17 @@ class GetCompleteWBJob extends Job implements ShouldQueue
      */
     public function handle()
     {		
-    	$weibos = new GetUserCompleteWB($this->userinfo);
-    	$weibos->getUserWeibos();
-	
-   		$this->userinfo->status = 1;
-   		$this->userinfo->save();
+    	//指定获取信息的model，setJob和getHtml需要该信息
+    	$userinfo = Wb_complete::where('uid', $this->wb_complete_job->uid)->first();
+    	
+    	$getCompleteJob = new GetCompleteWB($userinfo);
+    	$content = $getCompleteJob->getHtml($this->wb_complete_job->j_complete_page);	
+    	$page_total = $getCompleteJob->explainPage($content);
+    	
+    	//抓取完成后的状态
+    	$this->wb_complete_job->j_status = '2';
+    	$this->wb_complete_job->j_complete_total = $page_total;
+    	$this->wb_complete_job->save();
     }
     
     
@@ -52,8 +57,8 @@ class GetCompleteWBJob extends Job implements ShouldQueue
     public function failed()
     {
     	//失败任务的状态
-    	$this->userinfo->status=2;
-    	$this->userinfo->save();
+    	$this->wb_complete_job->j_status = '4';
+    	$this->wb_complete_job->save();
     }
     
 }

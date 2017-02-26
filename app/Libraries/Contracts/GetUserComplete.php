@@ -1,8 +1,11 @@
 <?php
 
 /**
- *  GetUserComplete.php 抓取用户所有微博数据
- *  使用cn抓取，便于分析
+ *  GetUserComplete.php 获得用户基本信息
+ *  由于cn页面信息不完善，改为用com页面抓取
+ *  http://weibo.com/%s中含有domain和page_id，可以用来获得用户微博接口
+ *  
+ *  2017-02-24
  * @copyright			(C) daweilang
  * @license				https://github.com/daweilang/
  *
@@ -22,14 +25,20 @@ use Storage;
 class GetUserComplete
 {	
 	public $usercard;
-	protected $userUrl;
+
+	/**
+	 * 该逻辑只分析一个地址，所以将url和file预订
+	 * @var unknown
+	 */
+	private $userUrl;
 	private $file;
 	
 	public function __construct($usercard)
 	{
 		$this->usercard = $usercard;
-		$this->userUrl = sprintf(config('weibo.WeiboUser.userFace'), $this->usercard);
-		$this->file = "wbUserHtml/{$this->usercard}_wb";
+		//获得用户首页
+		$this->userUrl = sprintf(config('weibo.WeiboUser.userWebFace'), $this->usercard);
+		$this->file = "wbUserHtml/{$this->usercard}_web_face";
 	}
 	
 	
@@ -41,7 +50,7 @@ class GetUserComplete
 	{	
 		$wb = new WeiboContent();
 		//抓取
-		$content = $wb->getWBHtml($this->userUrl, config('weibo.CookieFileCn.sina'), config('weibo.CookieFileCn.curl'));
+		$content = $wb->getWBHtml($this->userUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
 		if(!$content){
 			throw new \Exception("无法获取微博用户信息！ url:". $this->userUrl);
 		}
@@ -54,77 +63,54 @@ class GetUserComplete
 	
 	
 	/**
-	 * cn的用户html分析
+	 * 用户首页html分析
 	 * @param $userHtml html
 	 * @param unknown $file 储存的html页面
+	 * 用的com首页为展示页面，比较特殊，只能使用正则匹配来分析
 	 */
-	public function explainUserWeibo($userHtml, $file ='')
+	public function explainUserWeibo($html = '')
 	{
-		if($file && Storage::exists($file)){
+		if(empty($html) && Storage::exists($this->file)){
 			//该页面应该是html
-			$userHtml = Storage::get($file);
+			$html = Storage::get($this->file);
 		}
-		$crawler = new Crawler();
-		$crawler->addHtmlContent($userHtml);
 		
-		#### 获取链接中的用户id
-		$arrayTmp = $crawler->filterXPath('//div[@class="ut"]')->filter('a')->each(function (Crawler $node, $i) {		
-				return [$node->text(),$node->filter('a')->attr('href')];	
-		});
-		$uid = '';
-		foreach($arrayTmp as $k){
-			if($k[0] == '资料' && preg_match('/\/(\d+)\/info/' , $k[1], $m)){
-				$uid = $m[1];
-			}
-		}
-		if(empty($uid)){
+		//获得用户基本信息
+		if(empty($uid = $this->usePregMatch(config('weibo.WeiboInfo.oid'), $html))){
 			throw new \Exception("用户页面获取不正确");
+		}		
+		$domain = $this->usePregMatch(config('weibo.WeiboInfo.domain'), $html);
+		$page_id = $this->usePregMatch(config('weibo.WeiboInfo.page_id'), $html);
+		$username = $this->usePregMatch(config('weibo.WeiboInfo.onick'), $html);
+		
+		//获得粉丝关注微博数
+		$userInfo = [];
+		$data = json_decode($this->usePregMatch(config('weibo.WeiboInfo.userInfoView'), $html), true);
+		if($data['html']){
+			$crawler = new Crawler();
+			$crawler->addHtmlContent($data['html']);
+			
+			#### 获取链接中的用户id
+			$crawler->filterXPath('//td[@class="S_line1"]')->each(function (Crawler $node, $i) use (&$userInfo){
+				$userInfo[$node->filter('span')->text()] = $node->filter('strong')->text();
+			});
 		}
-		
-		#### 第一层span，用户信息
-		$arrayTmp = $crawler->filterXPath('//div[@class="ut"]')->filter('span')->each(function (Crawler $node, $i) {
-			if($i == 0){
-				return ['infos' => $node->text()];
-			}
-			//介绍
-			if($node->attr('style')=='word-break:break-all; width:50px;'){
-				return ['intro' => $node->text()];
-			}
-			elseif ($i == 2){ //认证
-				return ['type' => $node->text()];
-			}
-		});
-		$dataArray = [];
-		foreach ($arrayTmp as $v => $k){
-			if(!empty($k)){
-				$dataArray = array_merge($dataArray, $k);
-			}
-		}
-		
-		#### 用户粉丝数等信息
-		$weibos = $crawler->filterXPath('//div[@class="tip2"]')->filter('span')->text();
-		$follow = $crawler->filterXPath('//div[@class="tip2"]')->filterXPath('//a[1]')->text();
-		$fans = $crawler->filterXPath('//div[@class="tip2"]')->filterXPath('//a[2]')->text();
-		
 		$wbUser = Wb_complete::firstOrNew(['uid'=>$uid]);
 		//更新时不必改动项
 		if(!$wbUser->exists){
 			$wbUser->uid = $uid;
 			$wbUser->usercard = $this->usercard;
 		}
-		list($wbUser->username, $male_place) = mb_split('\s', trim($dataArray['infos']));	
-		$wbUser->status = 1;
+		$wbUser->username = $username;
+		$wbUser->domain = $domain;
+		$wbUser->page_id = $page_id;
 		
 		//用户微博关注粉丝数等信息
-		if(preg_match('/\[(\d+)\]/' , $weibos, $m)){
-			$wbUser->weibos = $m[1];
-		}
-		if(preg_match('/\[(\d+)\]/' , $follow, $m)){
-			$wbUser->follow = $m[1];
-		}
-		if(preg_match('/\[(\d+)\]/' , $fans, $m)){
-			$wbUser->fans = $m[1];
-		}
+		$wbUser->weibos = $userInfo['微博'];
+		$wbUser->fans = $userInfo['粉丝'];
+		$wbUser->follow = $userInfo['关注'];
+		
+		$wbUser->status = 1;
 		
 		if($wbUser->save()){
 			return $wbUser;
@@ -146,5 +132,19 @@ class GetUserComplete
 		//分析微博用户信息并储存数据
 		$this->explainUserWeibo($html);
 		return '';
+	}
+
+	/**
+	 * 
+	 * @param unknown $pattern
+	 * @param unknown $subject
+	 * @return unknown|boolean
+	 */
+	private function usePregMatch($pattern, $subject){
+		if(preg_match($pattern, $subject , $m)){
+			return $m[1];
+		}else{
+			return false;
+		}
 	}
 }
