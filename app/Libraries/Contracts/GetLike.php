@@ -133,9 +133,7 @@ class GetLike extends GetWeiboHandler
 				if(!$wbUser->exists){
 					$wbUser->uid = $uid;
 					$href = $row->filter('a')->attr('href');
-					if(preg_match('/\/(\w+)$/', $href , $m)){
-						$wbUser->usercard = $m[1];
-					}
+					$wbUser->usercard = ltrim($href, "\/");
 					$wbUser->username = $row->filter('a>img')->attr('title');
 					$wbUser->photo_url = $row->filter('a>img')->attr('src');
 					$wbUser->save();
@@ -145,18 +143,17 @@ class GetLike extends GetWeiboHandler
 			}
 		});
 		
+		sleep(1);
 		
 		if($crawler->filterXPath('//div[@class="W_pages"]')->count()){
 			
-			$last_page_text = $crawler->filterXPath('//div[@class="W_pages"]')->filterXPath('//span[contains(@action-type, "feed_list_page")]')->last()->text();
-		
-			//判断是否有下一页，有下一页则建立下一页任务
-			if($last_page_text && $last_page_text == '下一页'){
+			if($this->getLastPage($crawler, $this->getPage+1)){
 				$this->setJob($this->getPage+1, "");
 			}
 			else{
 				//没有最后一页是尾页，停止设置抓取
 				//由于weibo任务是赞和转发，评论等多队列，所以无法判断单个状态
+				//可以设计添加多个状态
 	// 			$weibo->status=4;
 	// 			$weibo->save();
 			}

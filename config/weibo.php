@@ -146,6 +146,9 @@ return [
 		//评论的赞
 		'likeCommentUrl' => "http://weibo.com/aj/like/object/big?ajwvr=6&object_id=%s&object_type=comment&_t=0&page=%d",
 		
+		//http://weibo.com/aj/v6/mblog/info/big?ajwvr=6&id=4078059135268877&max_id=4081555939339290&page=2&__rnd=1488685383803
+		'forwardUrl' => "http://weibo.com/aj/v6/mblog/info/big?ajwvr=6&id=%d&page=%d&__rnd=%s",
+			
 		//微博标题
 		'pregTitle' => '/\<title\>([\s\S]*?)\<\/title\>/',
 			
@@ -165,8 +168,11 @@ return [
 		 //$CONFIG['page_id'] 用户微博地址使用
 		'page_id' => '/\$CONFIG\[\'page_id\'\]\=\'(\d+)\'/',
 			
-		//微博，转发，粉丝等信息域
+		//用户，转发，粉丝等信息域
 		'userInfoView' => '/\<script\>FM\.view\(([\S]+Pl_Core_T8CustomTriColumn__3[\S\s]+)\)\<\/script\>/iU',
+			
+		//微博 信息域
+		'weiboInfoView' => '/\<script\>FM\.view\(([\S]+pl\.content\.weiboDetail\.index[\S\s]+)\)\<\/script\>/iU',
 	],	
 	
 	

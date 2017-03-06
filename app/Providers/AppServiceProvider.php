@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        //route名传入view，用于导航
     	view()->share('routeName',basename(url()->current()));
     }
 

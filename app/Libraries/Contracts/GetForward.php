@@ -13,18 +13,18 @@ namespace App\Libraries\Contracts;
 
 use App\Libraries\Classes\GetWeiboHandler;
 
-use App\Models\Wb_comment_job;
-use App\Models\Wb_comment;
+use App\Models\Wb_forward_job;
+use App\Models\Wb_forward;
 use App\Models\Wb_user;
 
-use App\Jobs\GetCommentContentJob;
+use App\Jobs\GetForwardContentJob;
 use App\Libraries\Classes\WeiboContent;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;
 
 
-class GetComment extends GetWeiboHandler
+class GetForward extends GetWeiboHandler
 {	
 	
 	public function __construct($mid, $model='')
@@ -49,10 +49,10 @@ class GetComment extends GetWeiboHandler
 		$weibo = $model::where('mid', $this->mid)->first();
 		
 		//插入监控表数据
-		$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, 'model'=>$this->model]);
+		$Wb_forward_job = Wb_forward_job::create( [ 'mid' => $this->mid, 'j_page' => $page, 'model'=>$this->model]);
 			
 		//设置任务
-		$this->setQueueClass("GetCommentContentJob", $comment_job, $jobName);
+		$this->setQueueClass("GetForwardContentJob", $Wb_forward_job, $jobName);
 	}
 	
 	/**
@@ -63,10 +63,11 @@ class GetComment extends GetWeiboHandler
 		$this->getPage = $page;
 		
 		//评论页地址
-		$this->thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
+		include app_path().'/Libraries/function/helpers.php';
+		$this->thisUrl = sprintf(config('weibo.WeiboInfo.forwardUrl'), $this->mid, $page, dw_microtime());
 		
-		$file = "wbHtml/$this->mid/comment_$page";
-		$errorFile = "wbHtml/$this->mid/error_comment_$page";
+		$file = "wbHtml/$this->mid/forward_$page";
+		$errorFile = "wbHtml/$this->mid/error_forward_$page";
 		
 		$wb = new WeiboContent();
 		//抓取
@@ -79,7 +80,7 @@ class GetComment extends GetWeiboHandler
 		
 		Storage::put($file, $html);
 		if(!Storage::exists($file)){
-			throw new \Exception("无法储存微博评论页面");
+			throw new \Exception("无法储存微博转发页面");
 		}
 		return $html;
 	}
@@ -113,8 +114,8 @@ class GetComment extends GetWeiboHandler
 			//预定义匹配需要的变量
 			$uid = $comment_pic_url = $created = '';
 			
-			//评论id
-			$wbCommentId = $row->filterXPath('//div[@class="list_li S_line1 clearfix"]')->filter('div')->attr('comment_id');
+			//转发实质是用户发微博，所以标签是mid
+			$wbForwardId = $row->filterXPath('//div[@class="list_li S_line1 clearfix"]')->filter('div')->attr('mid');
 			
 			//评论者的主页
 			//根据链接获得用户的usercard
@@ -162,9 +163,9 @@ class GetComment extends GetWeiboHandler
 			
 		
 			//更新时不必改动项
-			$wbComment = Wb_comment::firstOrNew(['comment_id'=>$wbCommentId]);
+			$wbComment = Wb_forward::firstOrNew(['forward_id'=>$wbForwardId]);
 			if(!$wbComment->exists){
-				$wbComment->comment_id = $wbCommentId;
+				$wbComment->forward_id = $wbForwardId;
 				$wbComment->mid = $this->mid;			
 			}
 			$wbComment->uid = $uid;
@@ -172,7 +173,7 @@ class GetComment extends GetWeiboHandler
 			$wbComment->username = $username;
 			$wbComment->usercard = $usercard;
 			$wbComment->content = $content;
-			$wbComment->comment_pic_url = $comment_pic_url;
+			$wbComment->forward_pic_url = $comment_pic_url;
 			$wbComment->wb_created = $created;
 			$wbComment->save();
 				
@@ -206,7 +207,6 @@ class GetComment extends GetWeiboHandler
 				// 			$weibo->save();
 			}
 		}
-		
 		return $page_total;
 		
 	}

@@ -165,15 +165,7 @@ class GetCompleteWB
 			$action = [];
 			
 			$row->filterXPath('//div[@class="WB_handle"]')->filter('li')->each(function (Crawler $row) use ( &$action ){
-				if($row->filter('a')->attr('action-type') == 'fl_forward'){
-					$action['forward'] = $row->filter('a')->filter('em')->last()->text();
-				}
-				if($row->filter('a')->attr('action-type') == 'fl_comment'){
-					$action['comment'] = $row->filter('a')->filter('em')->last()->text();
-				}
-				if($row->filter('a')->attr('action-type') == 'fl_like'){
-					$action['like'] = $row->filter('a')->filter('em')->last()->text();
-				}
+				$action[$row->filter('a')->attr('action-type')] = $row->filter('a')->filter('em')->last()->text();
 			});
 			
 			$wb = Wb_user_weibo::firstOrNew(['mid' => $mid]);
@@ -183,15 +175,17 @@ class GetCompleteWB
 			}
 			$wb->uid = $this->uid;
 			$wb->code = $code;
-			$wb->comment_total = $action['comment'];
-			$wb->like_total = $action['like'];
-			$wb->forward_total = $action['forward'];
+			$wb->comment_total = $action['fl_comment'];
+			$wb->like_total = $action['fl_like'];
+			$wb->forward_total = $action['fl_forward'];
 			$wb->wb_created = $wb_created;
 			$wb->save();
 			
 			//由于存在数据丢失情况，记录每页统计数
 			$page_total++;
 		});
+		
+		sleep(1);
 		
 		$last_page_text = '';
 		if($crawler->filterXPath('//div[@class="W_pages"]')->count()){

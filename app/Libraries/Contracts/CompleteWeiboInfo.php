@@ -141,31 +141,12 @@ class CompleteWeiboInfo
 
 			$wb = new WeiboContent();
 			
-			//第一页评论地址，获得评论页内容
-			$comment = sprintf($this->config['WeiboInfo']['commentUrl'], $mid, 1);
-			$content = $wb->getWBHtml($comment, $this->cookieWeibo, $this->cookieCurl);
-			$data = json_decode($content, true);
-			$pageCommnetData = $this->getWeiboCommnetInfo($data);
-			$commentFile = "{$this->filePath}/weibo_". $this->weibo->code ."_commnet";
-			Storage::put($commentFile, $content, true);
-			
-			
-// 			//获得赞页内容，获得赞页列表
-// 			$like = sprintf($this->config['WeiboInfo']['likeUrl'], $mid, 1);
-// 			$content = $wb->getWBHtml($like, $this->cookieWeibo, $this->cookieCurl);
-// 			$data = json_decode($content, true);
-// 			$pageLikeData = $this->getWeiboLikeInfo($data);
-// 			$likeFile = "{$this->filePath}/weibo_". $this->weibo->code ."_like";
-// 			Storage::put($likeFile, $content, true);
-			
 			
 			
 			$this->weibo->title = $title;
 			$this->weibo->mid = $mid;
 			$this->weibo->comment_total = $pageCommnetData['count'];
-			$this->weibo->comment_page = $pageCommnetData['totalpage'];
 			$this->weibo->like_total = $pageLikeData['total_number'];
-			$this->weibo->like_page = $pageLikeData['totalpage'];
 			$this->weibo->save();
 				
 			return true;

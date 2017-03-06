@@ -41,8 +41,9 @@
 							<table class="table table-striped table-bordered table-hover  dataTable" id="editable" aria-describedby="editable_info">
 								<thead>
 									<tr role="row">
-										<th class="sorting_asc" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 150px;" aria-sort="ascending" aria-label="任务名：激活排序列升序">任务名</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;" aria-label="任务状态：激活排序列升序">任务状态</th>
+										<th class="sorting_asc" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 150px;">任务名</th>
+										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;">mid</th>
+										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;">任务状态</th>
 										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 120px;">微博题目</th>
 										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;" aria-label="评论数：激活排序列升序">评论数</th>
 										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;" aria-label="攒：激活排序列升序">赞</th>
@@ -56,6 +57,7 @@
 									<tr class="gradeA odd">
 
 										<td class="sorting_1">{{ $weibo->wb_name }}</a></td>
+										<td class="center">{{ $weibo->mid }}</td>
 										<td class="center">{{ $weibo->status }}</td>
 										<td class="center "><a href="{{ $weibo->wb_url }}" target="_blank">{{ $weibo->title }}</a></td>
 										<td class="center ">

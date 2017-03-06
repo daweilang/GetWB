@@ -41,38 +41,24 @@
 							<table class="table table-striped table-bordered table-hover  dataTable" id="editable" aria-describedby="editable_info">
 								<thead>
 									<tr role="row">
-										<th class="sorting_asc" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 200px;"
-											aria-sort="ascending" aria-label="任务名：激活排序列升序">任务名</th>
-										<th class="sorting" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 100px;"
-											aria-label="任务状态：激活排序列升序">任务状态</th>
-										<th class="sorting" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 120px;">微博题目</th>
-										<th class="sorting" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 100px;"
-											aria-label="评论数：激活排序列升序">评论页数</th>
-										<th class="sorting" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 100px;"
-											aria-label="评论数：激活排序列升序">评论数</th>
-										<th class="sorting" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 160px;"
-											aria-label="更新时间：激活排序列升序">更新时间</th>
-										<th class="sorting" tabindex="0" aria-controls="editable"
-											rowspan="1" colspan="1" style="width: 214px;">操作</th>
+										<th class="sorting_asc" tabindex="0" rowspan="1" colspan="1" style="width: 200px;">任务名</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px;" >任务状态</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 120px;">微博题目</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px;">评数</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px;">赞数</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 160px;">更新时间</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 214px;">操作</th>
 									</tr>
 								</thead>
 								<tbody>
 
 									@foreach ($weibos as $weibo)
 									<tr class="gradeA odd">
-
-										<td class="sorting_1"><a href="{{ $weibo->wb_url }}"
-											target="_blank">{{ $weibo->wb_name }}</a></td>
-										<td class="center">{{ $weibo->wb_status }}</td>
+										<td class="sorting_1"><a href="{{ $weibo->wb_url }}" target="_blank">{{ $weibo->wb_name }}</a></td>
+										<td class="center" >{{ $weibo->wb_status }}</td>
 										<td class="center ">{{ $weibo->wb_title }}</td>
-										<td class="center ">{{ $weibo->wb_comment_page }}</td>
 										<td class="center ">{{ $weibo->wb_comment_total }}</td>
+										<td class="center ">{{ $weibo->wb_like_total }}</td>
 										<td class="center ">{{ $weibo->updated_at }}</td>
 										<td class="center ">
 											<a href="{{ url('admin/weibo/'.$weibo->id.'/edit') }}" class="btn btn-success">编辑</a> @if($weibo->wb_mid) 

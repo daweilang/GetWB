@@ -20,11 +20,11 @@ class CreateWeibosTable extends Migration
     		$table->string('code','30')->comment('短域名');
     		$table->bigInteger('uid')->comment('微博用户id');
     		$table->string('wb_url');
-    		$table->string('title', '255');    		
-    		$table->integer('comment_page')->unsigned()->default(0);
+    		$table->string('title', '255');
     		$table->integer('comment_total')->unsigned()->default(0);
-    		$table->integer('like_page')->unsigned()->default(0);
     		$table->integer('like_total')->unsigned()->default(0);
+    		$table->integer('forward_total')->unsigned()->default(0);
+    		$table->timestamp('wb_created')->default("0000-00-00 00:00:00")->comment('微博发布时间');
     		$table->tinyInteger('status')->unsigned()->default(0);
     		$table->timestamps();
     		$table->timestamp('comment_up');

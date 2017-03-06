@@ -19,11 +19,8 @@ class CreateWbUserWeibosTable extends Migration
     		$table->bigInteger('uid')->comment('微博用户id');
     		$table->string('code','30')->comment('短域名');
     		$table->integer('comment_total')->unsigned()->default(0)->comment('评论');
-    		$table->integer('comment_page')->unsigned()->default(0)->comment('评论页数');
     		$table->integer('like_total')->unsigned()->default(0)->comment('赞');
-    		$table->integer('like_page')->unsigned()->default(0)->comment('赞');
     		$table->integer('forward_total')->unsigned()->default(0)->comment('转发统计');
-    		$table->integer('forward_page')->unsigned()->default(0)->comment('转发统计');
     		$table->string('title','255')->comment('微博内容');
     		$table->timestamp('wb_created')->default("0000-00-00 00:00:00")->comment('微博发布时间');
     		$table->string('wb_pic_url', 255)->comment('微博图片');

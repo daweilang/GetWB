@@ -62,6 +62,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::resource('complete', 'CompleteController');
 	Route::get('complete/{uid}/weibos', 'CompleteController@weibos');
 	Route::get('complete/settingWB/{uid}', 'CompleteController@settingWB');
+	Route::get('complete/setGetAll/{uid}/{mid?}', 'CompleteController@setGetAll');
 	Route::get('complete/test/{uid}', 'CompleteController@exampleTest');
 	
 	

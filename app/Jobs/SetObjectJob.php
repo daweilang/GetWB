@@ -1,8 +1,9 @@
 <?php
 /**
- * 由于微博评论页过多，设置抓取评论任务队列时间较长
- * 设计设置抓取微博评论队列的队列
- * 队列的任务是根据评论页数设置抓取队列
+ * 抓取微博的转发、评论、和赞数据量巨大，采用队列模式
+ * 队列模式只需job加载其对象，所以采用统一封装外层job
+ * 具体单个实现，可见SetLikeJob等
+ * by daweilang 2017-03-05
  */
 namespace App\Jobs;
 
@@ -11,27 +12,28 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-use App\Libraries\Contracts\GetComment;
 use App\Libraries\Classes\SetJobLog;
 
-class SetCommentJob extends Job implements ShouldQueue
+class SetObjectJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     
     protected $mid;
     protected $job_log;
+    protected $object;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($mid)
+    public function __construct($mid, $object)
     {
         //
         $this->mid = $mid;
+        $this->object = $object;
         $this->job_log = new SetJobLog();
-        $this->job_log->createLog(['type'=>'comment','object_id'=>$mid,'status'=>0]);
+        $this->job_log->createLog(['type'=>$this->object,'object_id'=>$mid,'status'=>0]);
     }
 
     /**
@@ -41,8 +43,9 @@ class SetCommentJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-    	$commentJob = new GetComment($this->mid);
-    	$commentJob->setJob();
+    	$modelJob = "\App\Libraries\Contracts\Get".ucfirst($this->object);
+    	$setThisJob = new $modelJob($this->mid);
+    	$setThisJob->setJob();
     	$this->job_log->updateLog(['status'=>1]);
     }
     

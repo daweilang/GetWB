@@ -3,6 +3,7 @@
 namespace App\Libraries\Classes; 
 
 use Storage;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * 获得微博数据基础接口封装
@@ -116,5 +117,31 @@ abstract class GetWeiboHandler
 			throw new \Exception("无法获取接口，请检查获取结果");
 		}
 		return $array;
+	}
+	
+	
+	/**
+	 * 微博评论和赞接口页分页模式相同所以封装处理
+	 * 判断是否有下一页，有下一页则返回true
+	 * @param Crawler $crawler
+	 * @param unknown $page
+	 * @return boolean
+	 */
+	protected function getLastPage(Crawler $crawler , $page)
+	{
+		$last_page_text = $crawler->filterXPath('//div[@class="W_pages"]')->filterXPath('//span[contains(@action-type, "feed_list_page")]')->last()->text();
+		$last_page_action = $crawler->filterXPath('//div[@class="W_pages"]')->filterXPath('//span[contains(@action-type, "feed_list_page")]')->last()->attr('action-data');
+		$last_page = '';
+		
+		if(preg_match('/page=(\d+)/', $last_page_action, $m)){
+			$last_page = $m[1];
+		}
+		
+		if($last_page && $last_page==$page && $last_page_text=='下一页'){
+			return true;
+		}
+		else{
+			return false;	
+		}
 	}
 }

@@ -5,11 +5,13 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 use App\Libraries\Classes\SetJobLog;
-use App\Libraries\Contracts\GetLike;
-use App\Libraries\Contracts\GetComment;
 
+// use App\Libraries\Contracts\GetLike;
+// use App\Libraries\Contracts\GetComment;
+// use App\Libraries\Contracts\GetForward;
 
 use App\Models\Wb_user_weibo;
+
 
 class CompleteWeiboJob extends Command
 {
@@ -54,11 +56,7 @@ class CompleteWeiboJob extends Command
     	 * 定时任务获取一条微博数据
     	 * @var unknown $weibo
     	 */
-    	$this->weibo = Wb_user_weibo::where(    			
-    			function ($query) {
-    				$query->where('status','=', 1)->orWhere('status', '=', -2);
-    			}
-    	)->first();
+    	$this->weibo = Wb_user_weibo::where('status', 1)->take(10)->get();
     }
     
     /**
@@ -70,46 +68,45 @@ class CompleteWeiboJob extends Command
     {
 					
     	if($this->weibo){
-    		
-    		/**
-    		 * 设置任务
-    		 */
-    		$this->weibo->status = -2;
-    		$this->weibo->save();
-    		
-    		/**
-    		 * 跟抓取的mid获得赞列表
-    		 */
-	    	if($this->weibo->mid)
-	    	{ 			
-	    		/**
-	   			 * 设置抓取微博的赞任务
-	   			 */
-	   			if($this->weibo->like_total>0){
-	    			$job_log = new SetJobLog();
-	    			$job_log->createLog(['type'=>'like','object_id'=>$this->weibo->mid,'status'=>0,]);
-	    		
-	    			$likeJob = new GetLike($this->weibo->mid, $this->model);
-	    			$likeJob->setJob();
-	   				$job_log->updateLog(['status'=>1]);
-	    		}
 
-	    		/**
-	   			 * 设置抓取微博的评论任务
-	   			 */
-	   			if($this->weibo->comment_total>0){
-	    			$job_log = new SetJobLog();
-	    			$job_log->createLog(['type'=>'comment','object_id'=>$this->weibo->mid,'status'=>0,]);
-	    		
-	    			$likeJob = new GetComment($this->weibo->mid, $this->model);
-	    			$likeJob->setJob();
-	   				$job_log->updateLog(['status'=>1]);
+    		//先将数据设置状态
+    		foreach($this->weibo as $v){
+	    		$v->status = -2;
+	    		$v->save();
+    		}
+    		
+    		foreach($this->weibo as $v){
+    			
+		    	if($v->mid)
+		    	{	    		
+		    		$array = ['forward', 'comment', 'like'];
+		    		foreach($array as $type){
+		    			$totalName = $type."_total";
+		    			if($v->$totalName > 0){
+		    				$this->SetTypeJob($type, $v->mid);
+		    			}
+		    		}
+		    		
+		    		$v->status = 2;
+		    		$v->save();
+		    		
+		    		sleep(1);
 	    		}
-	    		
-	    		$this->weibo->status = 2;
-	    		$this->weibo->save();
-
     		}
     	}
+    }
+    
+    
+    /**
+     * 封装设置任务
+     */
+    protected function SetTypeJob($type, $mid)
+    {
+    	$job_log = new SetJobLog();
+    	$job_log->createLog(['type'=>$type, 'object_id'=>$mid, 'status'=>0,]);
+    	$thisModel = "\App\Libraries\Contracts\Get".ucfirst($type);
+    	$likeJob = new $thisModel($mid, $this->model);
+    	$likeJob->setJob();
+    	$job_log->updateLog(['status'=>1]);
     }
 }

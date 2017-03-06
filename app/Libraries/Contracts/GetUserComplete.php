@@ -27,7 +27,7 @@ class GetUserComplete
 	public $usercard;
 
 	/**
-	 * 该逻辑只分析一个地址，所以将url和file预订
+	 * 该逻辑只分析一个地址，所以将url和file预定义
 	 * @var unknown
 	 */
 	private $userUrl;
@@ -44,7 +44,7 @@ class GetUserComplete
 	
 	
 	/**
-	 * 抓取cn的微博页面
+	 * 抓取com的微博页面
 	 */
 	public function getUserHtml()
 	{	

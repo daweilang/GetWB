@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Weibo;
 
 use App\Jobs\GetWeiboJob;
-use App\Jobs\GetWeiboAllJob;
 
 
 /**
@@ -22,6 +21,7 @@ class WeiboInfoController extends Controller
 	
 	//执行延时
 	public $delay = 1;
+	
 	//对了名称开关
 	public $jobName = FALSE;
 	
@@ -63,10 +63,10 @@ class WeiboInfoController extends Controller
     	if ($weibo->save()) {
 			//将任务添加到队列，获得微博信息
 			if($this->jobName){
-				$job = (new GetWeiboAllJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
+				$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
 			}
 			else{
-				$job = (new GetWeiboAllJob($weibo))->delay($this->delay);
+				$job = (new GetWeiboJob($weibo))->delay($this->delay);
 			}	
     		$this->dispatch($job);
     		return redirect('admin/weibo');
@@ -99,7 +99,7 @@ class WeiboInfoController extends Controller
     			$job = (new GetWeiboJob($weibo))->onQueue('GetWeibo')->delay($this->delay);
     		}
     		else{
-    			$job = (new GetWeiboAllJob($weibo))->delay($this->delay);
+    			$job = (new GetWeiboJob($weibo))->delay($this->delay);
     		}
     		$this->dispatch($job);
     		return redirect('admin/weibo');
@@ -112,8 +112,21 @@ class WeiboInfoController extends Controller
     
     public function exampleTest($mid){
     	
-    	$getUserInfo = new \App\Libraries\Contracts\GetLike("4030488252993648");
-    	$getUserInfo->explainPage($getUserInfo->getHtml(1139));
+//     	$getUserInfo = new \App\Libraries\Contracts\GetForward("4078059135268877");
+//     	$getUserInfo->explainPage($getUserInfo->getHtml(1));
+//     	$getUserInfo->explainPage("", "wbHtml/$getUserInfo->mid/like_1139");
+
+//     	$getUserInfo = new \App\Libraries\Contracts\GetComment("4030488252993648");
+//     	$getUserInfo->explainPage($getUserInfo->getHtml(643));
+//     	$getUserInfo->explainPage("", "wbHtml/$getUserInfo->mid/like_1139");
+
+//     	$getUserInfo = new \App\Libraries\Contracts\GetLike("4030488252993648");
+//     	$getUserInfo->explainPage($getUserInfo->getHtml(1144));
+//     	$getUserInfo->explainPage("", "wbHtml/$getUserInfo->mid/like_1139");
+		
+//     	$weibo = Weibo::where('mid', "4078059135268877")->first();
+//     	$getUserInfo = new \App\Libraries\Contracts\GetWeiboInfo($weibo);
+//     	$getUserInfo->explainWeibo($getUserInfo->getWeiboHtml());
 //     	$getUserInfo->explainPage("", "wbHtml/$getUserInfo->mid/like_1139");
     
     }
