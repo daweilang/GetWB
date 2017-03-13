@@ -125,7 +125,8 @@ class CompleteController extends Controller
     		$whereArr['mid'] = $mid;
     	}	
     	$weibos = Wb_user_weibo::where($whereArr)->paginate(30);
-    	$count = Wb_user_weibo::where('uid', $userinfo['uid'])->count();
+//     	var_dump($weibos);
+    	$count = $weibos->total();
     	
     	return view('admin/complete/weibos', ['userinfo' => $userinfo, 'weibos' => $weibos, 'count'=>$count]);
     }
@@ -154,6 +155,9 @@ class CompleteController extends Controller
 	    	
 	    	$thisJob = new GetCompleteWB($userinfo);
 	    	$thisJob->setJob();
+
+// 	    	GetCompleteWB::setJob($userinfo);
+	    	
 	    	$job_log->updateLog(['status'=>1]);
 	    	return redirect('admin/message/3/setCommentJobJob');
     	}

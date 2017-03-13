@@ -53,6 +53,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::get('authorizeCn/test', 'AuthorizeCnController@setTestUrl');
 	Route::post('authorizeCn/getTestContent', 'AuthorizeCnController@getTestContent');
 	
+	
 	/* ================== 返回提示成功信息 ================== */
 	Route::get('authorize/seccuss', function(){return view('admin/weibo/seccuss',['groupName' => 'admin']);});
 	Route::get('authorize/fail', function(){return view('admin/weibo/fail',['groupName' => 'admin']);});

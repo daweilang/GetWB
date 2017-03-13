@@ -204,4 +204,18 @@ class GetCompleteWB
 		return $page_total;
 	}
 	
+	/**
+	 * Handle dynamic static method calls into the method.
+	 *
+	 * @param  string  $method
+	 * @param  array  $parameters
+	 * @return mixed
+	 */
+	public static function __callStatic($method, $parameters)
+	{
+		$instance = new static($parameters);
+	
+		return call_user_func_array([$instance, $method]);
+	}
+	
 }

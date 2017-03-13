@@ -60,14 +60,19 @@ class GetForward extends GetWeiboHandler
 	 */
 	public function getHtml($page)
 	{
+		//取设置任务时储存的博主mid
+		$model = "\App\Models\\$this->model";
+		$weibo = $model::where('mid', $this->mid)->first();
+		$this->uid = $weibo->uid;
+		
 		$this->getPage = $page;
 		
 		//评论页地址
 		include app_path().'/Libraries/function/helpers.php';
 		$this->thisUrl = sprintf(config('weibo.WeiboInfo.forwardUrl'), $this->mid, $page, dw_microtime());
 		
-		$file = "wbHtml/$this->mid/forward_$page";
-		$errorFile = "wbHtml/$this->mid/error_forward_$page";
+		$file = "wbHtml/$this->uid/$this->mid/forward_$page";
+		$errorFile = "wbHtml/$this->uid/$this->mid/error_forward_$page";
 		
 		$wb = new WeiboContent();
 		//抓取
@@ -101,11 +106,7 @@ class GetForward extends GetWeiboHandler
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($html);
 		
-		//取设置任务时储存的博主mid
-		//单独执行时有无法取得情况
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-		$oid = $weibo->uid;
+		$oid = $this->uid;
 		
 		$page_total = 0;
 		

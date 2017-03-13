@@ -26,7 +26,7 @@ use Storage;
 
 
 class GetLike extends GetWeiboHandler
-{	
+{
 	
 	public function __construct($mid, $model='')
 	{
@@ -64,13 +64,18 @@ class GetLike extends GetWeiboHandler
 	 */
 	public function getHtml($page)
 	{
+		$model = "\App\Models\\$this->model";
+		$weibo = $model::where('mid', $this->mid)->first();
+		//该条微博的id
+		$this->uid = $weibo->uid;
+		
 		$this->getPage = $page;
 		
 		//赞接口地址
 		$this->thisUrl = sprintf(config('weibo.WeiboInfo.likeUrl'), $this->mid, $page);
 		
-		$file = "wbHtml/$this->mid/like_$page";
-		$errorFile = "wbHtml/$this->mid/error_like_$page";
+		$file = "wbHtml/$this->uid/$this->mid/like_$page";
+		$errorFile = "wbHtml/$this->uid/$this->mid/error_like_$page";
 		
 		$wb = new WeiboContent();
 		//抓取
@@ -105,9 +110,8 @@ class GetLike extends GetWeiboHandler
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($html);
 		
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-		$oid = $weibo->uid;
+		//该微博id
+		$oid = $this->uid;
 		
 		$page_total = 0;
 		

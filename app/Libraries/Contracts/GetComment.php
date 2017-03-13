@@ -60,13 +60,18 @@ class GetComment extends GetWeiboHandler
 	 */
 	public function getHtml($page)
 	{
+		//取设置任务时储存的博主mid
+		$model = "\App\Models\\$this->model";
+		$weibo = $model::where('mid', $this->mid)->first();
+		$this->uid = $weibo->uid;
+		
 		$this->getPage = $page;
 		
 		//评论页地址
 		$this->thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
 		
-		$file = "wbHtml/$this->mid/comment_$page";
-		$errorFile = "wbHtml/$this->mid/error_comment_$page";
+		$file = "wbHtml/$this->uid/$this->mid/comment_$page";
+		$errorFile = "wbHtml/$this->uid/$this->mid/error_comment_$page";
 		
 		$wb = new WeiboContent();
 		//抓取
@@ -100,11 +105,7 @@ class GetComment extends GetWeiboHandler
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($html);
 		
-		//取设置任务时储存的博主mid
-		//单独执行时有无法取得情况
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-		$oid = $weibo->uid;
+		$oid = $this->uid;
 		
 		$page_total = 0;
 		

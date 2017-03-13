@@ -89,6 +89,11 @@ class AuthorizeController extends Controller
        		$getCookie = new GetWeiboCookie();
        		$preParam['sp'] = $getCookie->getSp();
        		
+       		//python的处理方式，rsa.PublicKey(rsaPubkey, 65537) #创建公钥无法用php实现
+       		//     		RSAKey = rsa.PublicKey(rsaPubkey, 65537) #创建公钥
+       		//     		codeStr = str(servertime) + '\t' + str(nonce) + '\n' + str(password) #根据js拼接方式构造明文
+       		//     		pwd = rsa.encrypt(codeStr, RSAKey)  #使用rsa进行加密
+       		
     		header('Content-type:text/html;charset=utf-8');
     		echo "<script type='text/javascript' src='/js/jquery-1.10.2.min.js'></script>\n";
 //     		echo "<script type='text/javascript' src='/js/prelogin.js'></script>";
