@@ -137,7 +137,12 @@ class GetLike extends GetWeiboHandler
 				if(!$wbUser->exists){
 					$wbUser->uid = $uid;
 					$href = $row->filter('a')->attr('href');
-					$wbUser->usercard = ltrim($href, "\/");
+					if(preg_match('/\/u\/(\d+)/', $href, $m)){
+						$wbUser->usercard = $m[1];
+					}
+					else{
+						$wbUser->usercard = ltrim($href, "\/");
+					}				
 					$wbUser->username = $row->filter('a>img')->attr('title');
 					$wbUser->photo_url = $row->filter('a>img')->attr('src');
 					$wbUser->save();
