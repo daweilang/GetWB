@@ -15,6 +15,8 @@ use App\Models\Weibo;
 use App\Libraries\Classes\WeiboContent;
 use Symfony\Component\DomCrawler\Crawler;
 
+use App\Libraries\Classes\GetWBException;
+
 use Config;
 use Storage;
 
@@ -58,12 +60,9 @@ class GetWeiboInfo
 	{
 		$wb = new WeiboContent();
 		//测试抓取
-		$content = $wb->getWBHtml($this->weibo->wb_url, $this->cookieWeibo, $this->cookieCurl);		
-		$isLogin = $wb->requiresLogin($content);
-		
-		if($isLogin){
-			throw new \Exception("微博登录失效，请重新授权");
-		}
+		$content = $wb->getWBHtml($this->weibo->wb_url, $this->cookieWeibo, $this->cookieCurl);	
+		//判断是否登录
+		$wb->requiresLogin($content);
 		
 		Storage::put($this->wbFile, $content);
 		if(!Storage::exists($this->wbFile)){
@@ -71,6 +70,7 @@ class GetWeiboInfo
 		}
 		return $content;
 	}
+	
 	
 	/**
 	 * 根据微博内容抓取第一页评论和赞分析
@@ -85,8 +85,8 @@ class GetWeiboInfo
 		
 		//获得用户基本信息
 		if(empty($uid = $this->usePregMatch(config('weibo.WeiboInfo.oid'), $html))){
-			throw new \Exception("用户页面获取不正确");
-			return false;
+			Log::error("用户页面获取不正确，uid不存在", ['url'=>$this->weibo->wb_url]);
+			throw new GetWBException("用户页面获取不正确", 2001);
 		}
 
 		$crawler = new Crawler();
@@ -100,8 +100,8 @@ class GetWeiboInfo
 		
 		#### 获取链接中的用户id
 		if(empty($this->mid = $crawler->filterXPath('//div[contains(@node-type, "root_child_comment_build")]')->attr('mid'))){
-			throw new \Exception("微博页面获取不正确");
-			return false;
+			Log::error("微博页面获取不正确，mid不存在", ['url'=>$this->weibo->wb_url]);
+			throw new GetWBException("微博页面获取不正确", 2002);
 		}	
 		
 		$time = $crawler->filterXPath('//div[@class="WB_from S_txt2"]')->filter('a')->first()->attr('date');

@@ -17,8 +17,8 @@ class CreateWbLikeJobsTable extends Migration
     		$table->increments('j_id');
     		$table->bigInteger('mid')->comment('微博id');
     		$table->string('model','30')->comment('任务对应的model');
-    		$table->integer('j_like_page')->unsigned()->default(0)->comment('页号');
-    		$table->integer('j_like_total')->unsigned()->default(0)->comment('该页统计');
+    		$table->integer('j_page')->unsigned()->default(0)->comment('页号');
+    		$table->integer('j_total')->unsigned()->default(0)->comment('该页统计');
     		$table->tinyInteger('j_status')->unsigned()->default(0)->comment('执行状态，错误码');
     		$table->timestamps();
     	});

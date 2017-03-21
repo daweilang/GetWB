@@ -26,72 +26,40 @@ use Storage;
 
 
 class GetLike extends GetWeiboHandler
-{
+{	
 	
-	public function __construct($mid, $model='')
+	/**
+	 * 设置队列名
+	 * @var string
+	 */
+	protected static $jobName = '';
+	
+	
+	/**
+	 * 获取类型
+	 */
+	protected static $getType = 'like';
+	
+	
+	/**
+	 * 本模块使用的pageModel
+	 * @return string
+	 */
+	protected static function getJobPageModel()
 	{
-		
-		parent::__construct();
-		
-		//评论、赞、转发接口格式固定，只需要mid即可，不必传递微博信息
-		$this->mid = $mid;	
-		
-		//没有指定使用模型时，默认使用weibos表数据
-		if($model){
-			$this->model = $model;
-		}
+		return 'Wb_like_job';
 	}
 	
 	
 	/**
 	 * 根据赞页数，设置评论页队列任务
 	 */
-	public function setJob($page='1', $jobName='')
+	public function setJob($page='1')
 	{
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-			
-		//like任务表登记任务，表储存了需要抓取数据的来源'model'
-		$like_job = Wb_like_job::create( [ 'mid' => $this->mid, 'j_like_page' => $page, 'model'=>$this->model]);
-		
+		//插入监控表数据
+		$job_page = static::insertSetJobPage($page);
 		//设置任务
-		$this->setQueueClass("GetLikeContentJob", $like_job, $jobName);
-		
-	}
-	
-	/**
-	 * 抓取赞接口页面写入文件
-	 */
-	public function getHtml($page)
-	{
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-		//该条微博的id
-		$this->uid = $weibo->uid;
-		
-		$this->getPage = $page;
-		
-		//赞接口地址
-		$this->thisUrl = sprintf(config('weibo.WeiboInfo.likeUrl'), $this->mid, $page);
-		
-		$file = "wbHtml/$this->uid/$this->mid/like_$page";
-		$errorFile = "wbHtml/$this->uid/$this->mid/error_like_$page";
-		
-		$wb = new WeiboContent();
-		//抓取
-		$content = $wb->getWBHtml($this->thisUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
-
-		//获得微博返回的数组，同处理抓取异常
-		$array = $this->getHtmlArray($content, $errorFile);
-		
-		$html = $array['data']['html'];
-		
-		//写入文件以便测试排错
-		Storage::put($file, $html);
-		if(!Storage::exists($file)){
-			throw new \Exception("无法储存页面");
-		}
-		return $html;
+		$this->setQueueClass("GetLikeContentJob", $job_page, static::$jobName);	
 	}
 	
 	
@@ -111,7 +79,7 @@ class GetLike extends GetWeiboHandler
 		$crawler->addHtmlContent($html);
 		
 		//该微博id
-		$oid = $this->uid;
+		$oid = static::$uid;
 		
 		$page_total = 0;
 		
@@ -122,10 +90,10 @@ class GetLike extends GetWeiboHandler
 			if($uid){
 				
 				//存储赞信息
-				$like = Wb_like::firstOrNew(['mid' => $this->mid, 'uid'=>$uid]);
+				$like = Wb_like::firstOrNew(['mid' => static::$mid, 'uid'=>$uid]);
 				//更新时不必改动项
 				if(!$like->exists){
-					$like->mid = $this->mid;
+					$like->mid = static::$mid;
 					$like->uid = $uid;
 					$like->oid = $oid;
 					$like->save();
@@ -156,8 +124,8 @@ class GetLike extends GetWeiboHandler
 		
 		if($crawler->filterXPath('//div[@class="W_pages"]')->count()){
 			
-			if($this->getLastPage($crawler, $this->getPage+1)){
-				$this->setJob($this->getPage+1, "");
+			if($this->getLastPage($crawler, (static::$getPage)+1)){
+				$this->setJob((static::$getPage)+1);
 			}
 			else{
 				//没有最后一页是尾页，停止设置抓取
@@ -169,7 +137,18 @@ class GetLike extends GetWeiboHandler
 		}
 		
 		return $page_total;
-		
 	}
-
+	
+	
+	/**
+	 * 获得赞接口地址
+	 * {@inheritDoc}
+	 * @see \App\Libraries\Classes\GetWeiboHandler::getThisUrl()
+	 */
+	public function setThisUrl($mid, $page){
+		if(empty(static::$thisUrl)){
+			static::$thisUrl = sprintf(config('weibo.WeiboInfo.likeUrl'), $mid, $page);
+		}
+	}
+	
 }

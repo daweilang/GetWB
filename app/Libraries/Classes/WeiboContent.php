@@ -9,8 +9,13 @@ namespace App\Libraries\Classes;
 
 use Symfony\Component\DomCrawler\Crawler;
 
+use App\Libraries\Classes\GetWBException;
+use Log;
+
 class WeiboContent extends CurlHandler
 {
+	
+	private $getUrl;
 	
 	/**
 	 * 抓取微博
@@ -21,6 +26,8 @@ class WeiboContent extends CurlHandler
 	 */
 	public function getWBHtml($url, $cookieFile2, $cookieFile3)
 	{	
+		$this->getUrl = $url;
+		
 		$curlConfig = [
 				
 				CURLOPT_SSL_VERIFYPEER => false,
@@ -55,7 +62,7 @@ class WeiboContent extends CurlHandler
 				//设置 HTTP 头字段的数组
 				CURLOPT_HTTPHEADER => array (
 						'Host' => 'weibo.cn',
-						'User-Agent' => 'Mozilla/5.0 (iPad; CPU OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B329 Safari/8536.25',
+						'User-Agent' => 'Mozilla/5.0 (iPad; CPU OS 7_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B329 Safari/8536.25',
 						'Accept' => '*/*',
 						'Accept-Language' => 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
 						'Accept-Encoding' => 'gzip, deflate',
@@ -78,16 +85,19 @@ class WeiboContent extends CurlHandler
 	 * @param unknown $html
 	 */
 	public function requiresLogin($html){
+		if(empty($html)){
+			Log::error("微博未登录，请重新授权", ['url'=>$this->getUrl]);
+			throw new GetWBException("微博未登录，请重新授权", 1001);
+		}
+		
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($html,'GBK');
 		//返回新浪通行证
 		$title = $crawler->filter('title')->text();
 		if($title == '新浪通行证'){
-			return true;
-		}
-		else {
-			return false;	
-		}		
+			Log::error("微博登录失效，请重新授权", ['url'=>$this->getUrl]);
+			throw new GetWBException("微博登录失效，请重新授权", 1002);
+		}	
 // 		return $crawler->filter('body')->text();
 	}
 	

@@ -9,6 +9,6 @@ class Wb_like_job extends Model
     //
 	protected $primaryKey = 'j_id';
 	
-	protected $fillable = ['mid', 'j_like_page', 'model'];
+	protected $fillable = ['mid', 'j_page', 'model'];
 	
 }

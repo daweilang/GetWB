@@ -17,9 +17,12 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">填写SINA授权信息<br>采用登录微博主站获得Cookie方式访问微博，Cookie失效后需要重新获得授权</div>
+                <div class="panel-heading">填写SINA授权信息
+                		<br>采用模拟登录新浪通行证方式获得Cookie，访问微博
+                </div>
                 <div class="panel-heading">
-                	访问weibo.cn获取信息请访问<a href="{{ url('/admin/authorizeCn') }}">手机微博授权</a>
+                	微博Cookie是访问微博页面的基础
+                	<br>Cookie失效后需要重新获得授权
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/admin/authorize/setConfig') }}">

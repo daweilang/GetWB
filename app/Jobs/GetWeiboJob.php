@@ -57,9 +57,10 @@ class GetWeiboJob extends Job implements ShouldQueue
 			//获得微博页面内容
 			$content = $getContent->getWeiboHtml();
 			//分析微博的内容录入数据
-			$getContent->explainWeibo($content);			
+			$getContent->explainWeibo($content);
 			
 			$array = ['forward', 'comment', 'like'];
+// 			$array = [];
 			
 			foreach($array as $type){
 				$totalName = $type."_total";
@@ -83,7 +84,7 @@ class GetWeiboJob extends Job implements ShouldQueue
 	{
 		$this->weibo->status = -1;
 		$this->weibo->save();
-		Log::info('无法获得微博信息');
+		Log::info('无法获得微博信息', ['Job'=>'GetWeibJob']);
 	}
 	
 	

@@ -68,7 +68,7 @@ abstract class CurlHandler
 		
 		if (curl_errno($ch) > 0) {
 			$savePath = 'curl.log';
-			Storage::put($savePath, date("Y-m-d H:i:s")." CURL ERROR:$url " . curl_error($ch));
+			Storage::append($savePath, date("Y-m-d H:i:s")." CURL ERROR:$url " . curl_error($ch));
 		}
 		
 		$info = curl_getinfo($ch);

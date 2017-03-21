@@ -16,7 +16,7 @@ class AuthorizeController extends Controller
 	//设置组名
 	public function __construct()
 	{
-		view()->share('groupName', 'weibo');
+		view()->share('groupName', 'authorize');
 		view()->share('routeName', 'authorize');
 	}
 	

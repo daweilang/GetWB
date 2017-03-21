@@ -27,66 +27,38 @@ use Storage;
 class GetComment extends GetWeiboHandler
 {	
 	
-	public function __construct($mid, $model='')
+
+	/**
+	 * 设置队列名
+	 * @var string
+	 */
+	protected static $jobName = '';
+	
+	
+	/**
+	 * 获取类型
+	 */
+	protected static $getType = 'comment';
+	
+	
+	/**
+	 * 本模块使用的pageModel
+	 * @return string
+	 */
+	protected static function getJobPageModel()
 	{
-		parent::__construct();
-		
-		$this->mid = $mid;
-	
-		//没有指定使用模型时，默认使用weibos表数据
-		if($model){
-			$this->model = $model;
-		}
+		return 'Wb_comment_job';
 	}
-	
 	
 	/**
 	 * 根据评论页数，设置评论页队列任务
 	 */
-	public function setJob($page='1', $jobName='')
-	{
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-		
+	public function setJob($page='1')
+	{	
 		//插入监控表数据
-		$comment_job = Wb_comment_job::create( [ 'mid' => $this->mid, 'j_comment_page' => $page, 'model'=>$this->model]);
-			
+		$job_page = static::insertSetJobPage($page);
 		//设置任务
-		$this->setQueueClass("GetCommentContentJob", $comment_job, $jobName);
-	}
-	
-	/**
-	 * 抓取评论页面写入文件
-	 */
-	public function getHtml($page)
-	{
-		//取设置任务时储存的博主mid
-		$model = "\App\Models\\$this->model";
-		$weibo = $model::where('mid', $this->mid)->first();
-		$this->uid = $weibo->uid;
-		
-		$this->getPage = $page;
-		
-		//评论页地址
-		$this->thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), $this->mid, $page);
-		
-		$file = "wbHtml/$this->uid/$this->mid/comment_$page";
-		$errorFile = "wbHtml/$this->uid/$this->mid/error_comment_$page";
-		
-		$wb = new WeiboContent();
-		//抓取
-		$content = $wb->getWBHtml($this->thisUrl, config('weibo.CookieFile.weibo'), config('weibo.CookieFile.curl'));
-		
-		//获得微博返回的数组，同处理抓取异常
-		$array = $this->getHtmlArray($content, $errorFile);
-		
-		$html = $array['data']['html'];
-		
-		Storage::put($file, $html);
-		if(!Storage::exists($file)){
-			throw new \Exception("无法储存微博评论页面");
-		}
-		return $html;
+		$this->setQueueClass("GetCommentContentJob", $job_page, static::$jobName);
 	}
 	
 	
@@ -105,7 +77,7 @@ class GetComment extends GetWeiboHandler
 		$crawler = new Crawler();
 		$crawler->addHtmlContent($html);
 		
-		$oid = $this->uid;
+		$oid = static::$uid;
 		
 		$page_total = 0;
 		
@@ -166,7 +138,7 @@ class GetComment extends GetWeiboHandler
 			$wbComment = Wb_comment::firstOrNew(['comment_id'=>$wbCommentId]);
 			if(!$wbComment->exists){
 				$wbComment->comment_id = $wbCommentId;
-				$wbComment->mid = $this->mid;			
+				$wbComment->mid = static::$mid;			
 			}
 			$wbComment->uid = $uid;
 			$wbComment->oid = $oid;
@@ -196,8 +168,8 @@ class GetComment extends GetWeiboHandler
 		
 		if($crawler->filterXPath('//div[@class="W_pages"]')->count()){
 			
-			if($this->getLastPage($crawler, $this->getPage+1)){
-				$this->setJob($this->getPage+1, "");
+			if($this->getLastPage($crawler, (static::$getPage)+1)){
+				$this->setJob((static::$getPage)+1);
 			}
 			else{
 				//没有最后一页是尾页，停止设置抓取
@@ -210,5 +182,13 @@ class GetComment extends GetWeiboHandler
 		
 		return $page_total;
 		
+	}
+	
+	
+	public function setThisUrl($mid, $page){
+		//评论页地址
+		if(empty(static::$thisUrl)){
+			static::$thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), static::$mid, $page);
+		}
 	}
 }

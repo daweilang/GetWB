@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
+use App\Libraries\Classes\GetWBException;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -21,6 +23,8 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+
+    	GetWBException::class,
     ];
 
     /**
@@ -33,6 +37,12 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
+    	if ($e instanceof GetWBException) {
+    		//如果是微博抓取返回错误根据错误号进行处理
+    		//发送邮件
+//     		var_dump($e->getMessage());
+//     		var_dump($e->getCode());
+    	}
         parent::report($e);
     }
 

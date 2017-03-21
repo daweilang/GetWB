@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 
 	/* ================== users ================== */
 	Route::resource('users', 'WeiboUsersController');
+// 	Route::resource('users/test/{mid}', 'WeiboUsersController@exampleTest');
 
 	/* ================== fans ================== */
 	Route::get('fans/{uid}', 'WeiboFansController@index');

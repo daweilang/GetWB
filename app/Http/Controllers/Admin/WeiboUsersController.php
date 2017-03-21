@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Wb_user;
 use App\Jobs\GetUserInfoJob;
 
+// use Redis;
+use Illuminate\Support\Facades\Redis as Redis;
 
 /**
  * 抓取微博用户信息
@@ -107,4 +108,9 @@ class WeiboUsersController extends Controller
     	return view('admin/msg', ['notice'=>'已经设置后台任务获取微博用户信息，请稍后访问']);
     }
     
+    
+    public function exampleTest($mid){
+//     	Redis::set('name', 'Taylor');
+    	echo Redis::get('name');
+    }
 }
