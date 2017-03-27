@@ -37,12 +37,12 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
-    	if ($e instanceof GetWBException) {
+//     	if ($e instanceof GetWBException) {
     		//如果是微博抓取返回错误根据错误号进行处理
     		//发送邮件
 //     		var_dump($e->getMessage());
 //     		var_dump($e->getCode());
-    	}
+//     	}
         parent::report($e);
     }
 

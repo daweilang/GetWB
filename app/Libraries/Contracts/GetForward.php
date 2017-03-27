@@ -43,7 +43,7 @@ class GetForward extends GetWeiboHandler
 	 * 本模块使用的pageModel
 	 * @return string
 	 */
-	protected static function getJobPageModel()
+	public static function getJobPageModel()
 	{
 		return 'Wb_forward_job';
 	}
@@ -87,79 +87,86 @@ class GetForward extends GetWeiboHandler
 			//转发实质是用户发微博，所以标签是mid
 			$wbForwardId = $row->filterXPath('//div[@class="list_li S_line1 clearfix"]')->filter('div')->attr('mid');
 			
-			//评论者的主页
-			//根据链接获得用户的usercard
-			$wbface = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->attr('href');
-			$usercard = ltrim($wbface, "\/");
-			
-			//评论者的id
-			//链接的usercard标签储存的是uid
-			$imgUsercard = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->attr('usercard');
-			if(preg_match('/id\=(\d+)/', $imgUsercard , $m)){
-				$uid = $m[1];
-			}
-			
-			//评论者的name
-			$username = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->text();
-			
-			//评论内容
-			$text = trim($row->filterXPath('//div[@class="WB_text"]')->text());
-			$content = mb_substr($text,mb_strlen($username."：",'UTF-8'), null, 'UTF-8');
-			
-			//评论内容配图
-			if($row->filterXPath('//div[@class="WB_media_wrap clearfix"]')->count()){
-				$comment_pic_url = $row->filterXPath('//div[@class="media_box"]')->filter('ul>li>img')->attr('src');
-			}
-			
-			$timeText = $row->filterXPath('//div[@class="WB_from S_txt2"]')->text();
-			if(preg_match('/(\d{4}\-\d{1,2}\-\d{1,2}\s+\d{2}\:\d{2}:\d{2})/', $timeText, $m)){
-				$created = $m[1];
-			}
-			elseif(preg_match('/(\d{4}\-\d{1,2}\-\d{1,2}\s+\d{2}\:\d{2})/', $timeText, $m))
-			{
-				$created = $m[1];
-			}
-			elseif(preg_match('/(\d{1,2})月(\d{1,2})日\s+(\d{1,2})\:(\d{1,2})/', $timeText, $m))
-			{
-				$created = sprintf("%04d-%02d-%02d %02d:%02d:00", date("Y"), $m[1], $m[2], $m[3], $m[4]);
-			}
-			elseif(preg_match('/今天\s+(\d{1,2})\:(\d{1,2})/', $timeText, $m))
-			{
-				$created = sprintf("%04d-%02d-%02d %02d:%02d:00", date("Y"), date("m"), date("d"), $m[1], $m[2]);
-			}
-			elseif(preg_match('/(\d+)分钟前/', $timeText, $m)){
-				$created = date("Y-m-d H:i:00", time()-$m[1]*60);
-			}
-			
-		
-			//更新时不必改动项
-			$wbComment = Wb_forward::firstOrNew(['forward_id'=>$wbForwardId]);
-			if(!$wbComment->exists){
-				$wbComment->forward_id = $wbForwardId;
-				$wbComment->mid = static::$mid;			
-			}
-			$wbComment->uid = $uid;
-			$wbComment->oid = $oid;
-			$wbComment->username = $username;
-			$wbComment->usercard = $usercard;
-			$wbComment->content = $content;
-			$wbComment->forward_pic_url = $comment_pic_url;
-			$wbComment->wb_created = $created;
-			$wbComment->save();
+			if($wbForwardId){
 				
-			if($uid){	
-				//储存用户信息
-				$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
-				//后台执行抓取用户信息程序
-				if(!$wbUser->exists){
-					$wbUser->uid = $uid;
-					$wbUser->username = $username;
-					$wbUser->usercard = $usercard;
-					$wbUser->save();
-				}	
-			}
+				//评论者的主页
+				//根据链接获得用户的usercard
+				$wbface = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->attr('href');
+				$usercard = ltrim($wbface, "\/");
+				
+				//评论者的id
+				//链接的usercard标签储存的是uid
+				$imgUsercard = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->attr('usercard');
+				if(preg_match('/id\=(\d+)/', $imgUsercard , $m)){
+					$uid = $m[1];
+				}
+				
+				//评论者的name
+				$username = $row->filterXPath('//div[@class="WB_text"]')->filter('a')->text();
+				
+				//评论内容
+				$text = trim($row->filterXPath('//div[@class="WB_text"]')->text());
+				$content = mb_substr($text,mb_strlen($username."：",'UTF-8'), null, 'UTF-8');
+				
+				//评论内容配图
+				if($row->filterXPath('//div[@class="WB_media_wrap clearfix"]')->count()){
+					$comment_pic_url = $row->filterXPath('//div[@class="media_box"]')->filter('ul>li>img')->attr('src');
+				}
+				
+				$timeText = $row->filterXPath('//div[@class="WB_from S_txt2"]')->text();
+				if(preg_match('/(\d{4}\-\d{1,2}\-\d{1,2}\s+\d{2}\:\d{2}:\d{2})/', $timeText, $m)){
+					$created = $m[1];
+				}
+				elseif(preg_match('/(\d{4}\-\d{1,2}\-\d{1,2}\s+\d{2}\:\d{2})/', $timeText, $m))
+				{
+					$created = $m[1];
+				}
+				elseif(preg_match('/(\d{1,2})月(\d{1,2})日\s+(\d{1,2})\:(\d{1,2})/', $timeText, $m))
+				{
+					$created = sprintf("%04d-%02d-%02d %02d:%02d:00", date("Y"), $m[1], $m[2], $m[3], $m[4]);
+				}
+				elseif(preg_match('/今天\s+(\d{1,2})\:(\d{1,2})/', $timeText, $m))
+				{
+					$created = sprintf("%04d-%02d-%02d %02d:%02d:00", date("Y"), date("m"), date("d"), $m[1], $m[2]);
+				}
+				elseif(preg_match('/(\d+)分钟前/', $timeText, $m)){
+					$created = date("Y-m-d H:i:00", time()-$m[1]*60);
+				}
+				
 			
-			$page_total++;
+				//更新时不必改动项
+				$wbComment = Wb_forward::firstOrNew(['forward_id'=>$wbForwardId]);
+				if(!$wbComment->exists){
+					$wbComment->forward_id = $wbForwardId;
+					$wbComment->mid = static::$mid;			
+				}
+				$wbComment->uid = $uid;
+				$wbComment->oid = $oid;
+				$wbComment->username = $username;
+				$wbComment->usercard = $usercard;
+				$wbComment->content = $content;
+				$wbComment->forward_pic_url = $comment_pic_url;
+				$wbComment->wb_created = $created;
+				$wbComment->save();
+					
+				if($uid){	
+					//储存用户信息
+					$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
+					//后台执行抓取用户信息程序
+					if(!$wbUser->exists){
+						$wbUser->uid = $uid;
+						$wbUser->username = $username;
+						$wbUser->usercard = $usercard;
+						$wbUser->save();
+					}	
+				}
+				
+				$page_total++;
+			}			
+			else{
+				Log::error("数据接口异常", ['url'=>static::$thisUrl]);
+				throw new GetWBException("数据接口异常", 3002);
+			}
 		});
 		
 		sleep(1);

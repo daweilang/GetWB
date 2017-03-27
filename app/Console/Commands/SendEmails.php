@@ -40,7 +40,7 @@ class SendEmails extends Command
     public function handle()
     {
         //
-    	DB::table('failed_jobs')->delete();
+//     	DB::table('failed_jobs')->delete();
 //         echo "测试输出\n";
     }
 }

@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
 		//定时任务，设置抓取用户的全部微博
 		Commands\CompleteWeiboJob::class,
+		Commands\RetryWBException::class,
+		Commands\SetUsersRedis::class,
     ];
 
     /**
@@ -26,6 +28,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-    	$schedule->command('comwbjob')->everyMinute();
+//     	$schedule->command('comwbjob')->everyMinute();
     }
 }

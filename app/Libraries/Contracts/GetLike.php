@@ -19,11 +19,10 @@ use App\Models\Wb_like_job;
 use App\Models\Wb_user;
 
 use App\Jobs\GetLikeContentJob;
-use App\Libraries\Classes\WeiboContent;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;
-
+use Log;
 
 class GetLike extends GetWeiboHandler
 {	
@@ -45,7 +44,7 @@ class GetLike extends GetWeiboHandler
 	 * 本模块使用的pageModel
 	 * @return string
 	 */
-	protected static function getJobPageModel()
+	public static function getJobPageModel()
 	{
 		return 'Wb_like_job';
 	}
@@ -86,7 +85,6 @@ class GetLike extends GetWeiboHandler
 		$crawler->filterXPath('//div[@class="WB_emotion"]')->filter('li')->each(function (Crawler $row) use ($oid, &$page_total) {
 			
 			$uid = $row->filter('li')->attr('uid');
-			
 			if($uid){
 				
 				//存储赞信息
@@ -118,6 +116,10 @@ class GetLike extends GetWeiboHandler
 
 				$page_total++;
 			}
+			else{
+				Log::error("数据接口异常", ['url'=>static::$thisUrl]);
+				throw new GetWBException("数据接口异常", 3002);
+			}
 		});
 		
 		sleep(1);
@@ -145,7 +147,7 @@ class GetLike extends GetWeiboHandler
 	 * {@inheritDoc}
 	 * @see \App\Libraries\Classes\GetWeiboHandler::getThisUrl()
 	 */
-	public function setThisUrl($mid, $page){
+	public static function setThisUrl($mid, $page){
 		if(empty(static::$thisUrl)){
 			static::$thisUrl = sprintf(config('weibo.WeiboInfo.likeUrl'), $mid, $page);
 		}

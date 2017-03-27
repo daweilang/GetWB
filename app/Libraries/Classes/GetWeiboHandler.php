@@ -113,7 +113,7 @@ abstract class GetWeiboHandler
 	 *
 	 * @return 返回需要抓取页面的地址
 	 */
-	abstract public function setThisUrl($mid, $page);
+	protected static function setThisUrl($mid, $page){}
 	
 	
 	/**
@@ -132,9 +132,9 @@ abstract class GetWeiboHandler
 		static::$uid = $weibo->uid;
 	
 		//赞接口地址
-		$this->setThisUrl(static::$mid, $page);
-		$this->setThisFile();
-	
+		static::setThisUrl(static::$mid, $page);
+		static::setThisFile();
+		
 		//获得页面内容，获得微博返回的数组，同处理抓取异常
 		$array = static::getWBContent();
 	
@@ -182,10 +182,11 @@ abstract class GetWeiboHandler
 	
 	/**
 	 * 封装queue执行逻辑
+	 * 重跑数据也需要，所以为public
 	 * @param unknown $className
 	 * @param unknown $jobName
 	 */
-	protected function setQueueClass($className, $classJob, $jobName)
+	public function setQueueClass($className, $classJob, $jobName='')
 	{
 		$class = "\App\Jobs\\$className";
 		if(empty($jobName)){
