@@ -18,7 +18,7 @@ use App\Models\Wb_forward;
 use App\Models\Wb_user;
 
 use App\Jobs\GetForwardContentJob;
-use App\Libraries\Classes\WeiboContent;
+use App\Libraries\Classes\GetWBException;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;

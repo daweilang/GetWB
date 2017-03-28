@@ -18,7 +18,7 @@ use App\Models\Wb_comment;
 use App\Models\Wb_user;
 
 use App\Jobs\GetCommentContentJob;
-use App\Libraries\Classes\WeiboContent;
+use App\Libraries\Classes\GetWBException;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;

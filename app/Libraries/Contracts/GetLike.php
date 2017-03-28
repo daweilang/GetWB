@@ -19,6 +19,7 @@ use App\Models\Wb_like_job;
 use App\Models\Wb_user;
 
 use App\Jobs\GetLikeContentJob;
+use App\Libraries\Classes\GetWBException;
 use Symfony\Component\DomCrawler\Crawler;
 
 use Storage;
