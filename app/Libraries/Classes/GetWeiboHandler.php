@@ -265,6 +265,12 @@ abstract class GetWeiboHandler
 			$last_page = $m[1];
 		}
 		
+		if($last_page!=$page){
+			//存在返回第二页的可能
+			Log::error("链接接口异常", ['url'=>static::$thisUrl]);
+			throw new GetWBException("链接数据接口异常", 3003);
+		}
+		
 		if($last_page && $last_page==$page && $last_page_text=='下一页'){
 			return true;
 		}
