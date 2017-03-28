@@ -117,8 +117,8 @@ class GetLike extends GetWeiboHandler
 				$page_total++;
 			}
 			else{
-				Log::error("数据接口异常", ['url'=>static::$thisUrl]);
-				throw new GetWBException("数据接口异常", 3002);
+				Log::error("数据接口异常，没有数据", ['url'=>static::$thisUrl]);
+				throw new GetWBException("数据接口异常，没有数据", 3002);
 			}
 		});
 		
@@ -136,6 +136,10 @@ class GetLike extends GetWeiboHandler
 	// 			$weibo->status=4;
 	// 			$weibo->save();
 			}
+		}
+		else{
+			Log::error("数据接口异常, 没有分页", ['url'=>static::$thisUrl]);
+			throw new GetWBException("数据接口异常, 没有分页", 3004);
 		}
 		
 		return $page_total;
