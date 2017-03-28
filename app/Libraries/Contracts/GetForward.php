@@ -185,8 +185,11 @@ class GetForward extends GetWeiboHandler
 			}
 		}
 		else{
-			Log::error("数据接口异常, 没有分页", ['url'=>static::$thisUrl]);
-			throw new GetWBException("数据接口异常, 没有分页", 3004);
+			//第一页没有分页
+			if(static::$getPage !=1 ){
+				Log::error("数据接口异常, 没有分页", ['url'=>static::$thisUrl]);
+				throw new GetWBException("数据接口异常, 没有分页", 3004);
+			}
 		}
 		return $page_total;
 		
