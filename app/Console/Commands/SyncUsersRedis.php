@@ -7,8 +7,10 @@ use Illuminate\Console\Command;
 use DB;
 use Storage;
 use Illuminate\Support\Facades\Redis as Redis;
+use Illuminate\Database\QueryException;
 
-class SetUsersRedis extends Command
+
+class SyncUsersRedis extends Command
 {
     /**
      * The name and signature of the console command.
@@ -48,24 +50,36 @@ class SetUsersRedis extends Command
     	//写入同名文件
     	$dataFile = storage_path("app/$table");
     	
+    	$redis = Redis::connection("user");
+    	
     	$offset = 0;
     	$limit = 100000;
     	$is_not_end = true;
     	while ($is_not_end){
-    		print "$limit,$offset\n";
+    		
     		Storage::delete($table);
-	    	$row = DB::statement("SELECT uid,status FROM $table limit $limit offset $offset INTO OUTFILE '$dataFile' FIELDS TERMINATED BY ','");
+    		//该语句不能远程执行
+    		try {
+	    		$row = DB::statement("SELECT uid,status FROM $table limit $limit offset $offset INTO OUTFILE '$dataFile' FIELDS TERMINATED BY ','");
+    		}
+    		catch (QueryException $e){
+    			$this->error("该程序不能远程执行");
+    			exit;
+    		}
+    		
+    		$this->info("$limit,$offset");
+    		
 	    	//写入文件减轻数据库压力
 	    	$lines = file($dataFile);
 	    	if(empty($lines)){
 	    		$is_not_end = false;
 	    		continue;
 	    	}
-	    	Redis::pipeline(function ($pipe) use ($lines) {
+	    	$redis->pipeline(function ($pipe) use ($lines) {
 	    		foreach ($lines as $line_num => $line) {
 	    			$arr = explode(",",$line);
 	    			//set会重新值
-	    			$pipe->setnx($arr[0], trim($arr[1]));
+	    			$pipe->setnx("uid:".$arr[0], trim($arr[1]));
 	    		}
 	    	});
 			unset($lines);
