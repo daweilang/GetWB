@@ -15,11 +15,12 @@ use App\Libraries\Classes\GetWeiboHandler;
 
 use App\Models\Wb_comment_job;
 use App\Models\Wb_comment;
-use App\Models\Wb_user;
 
 use App\Jobs\GetCommentContentJob;
 use App\Libraries\Classes\GetWBException;
 use Symfony\Component\DomCrawler\Crawler;
+
+use App\Libraries\Classes\TraitWBUser;
 
 use Storage;
 
@@ -27,7 +28,8 @@ use Storage;
 class GetComment extends GetWeiboHandler
 {	
 	
-
+	use TraitWBUser;
+	
 	/**
 	 * 设置队列名
 	 * @var string
@@ -153,13 +155,14 @@ class GetComment extends GetWeiboHandler
 					
 				if($uid){	
 					//储存用户信息
-					$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
+					$wbUser = $this->userExists($uid);
 					//后台执行抓取用户信息程序
-					if(!$wbUser->exists){
+					if(is_object($wbUser)){
 						$wbUser->uid = $uid;
 						$wbUser->username = $username;
 						$wbUser->usercard = $usercard;
 						$wbUser->save();
+						$this->insertRedisUser($uid);
 					}	
 				}
 				

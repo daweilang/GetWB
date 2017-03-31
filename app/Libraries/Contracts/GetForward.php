@@ -15,11 +15,12 @@ use App\Libraries\Classes\GetWeiboHandler;
 
 use App\Models\Wb_forward_job;
 use App\Models\Wb_forward;
-use App\Models\Wb_user;
 
 use App\Jobs\GetForwardContentJob;
 use App\Libraries\Classes\GetWBException;
 use Symfony\Component\DomCrawler\Crawler;
+
+use App\Libraries\Classes\TraitWBUser;
 
 use Storage;
 
@@ -27,6 +28,8 @@ use Storage;
 class GetForward extends GetWeiboHandler
 {
 
+	use TraitWBUser;
+	
 	/**
 	 * 设置队列名
 	 * @var string
@@ -151,13 +154,14 @@ class GetForward extends GetWeiboHandler
 					
 				if($uid){	
 					//储存用户信息
-					$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
+					$wbUser = $this->userExists($uid);
 					//后台执行抓取用户信息程序
-					if(!$wbUser->exists){
+					if(is_object($wbUser)){
 						$wbUser->uid = $uid;
 						$wbUser->username = $username;
 						$wbUser->usercard = $usercard;
 						$wbUser->save();
+						$this->insertRedisUser($uid);
 					}	
 				}
 				

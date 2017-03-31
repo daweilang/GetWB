@@ -7,6 +7,7 @@ use Storage;
 use Symfony\Component\DomCrawler\Crawler;
 use App\Libraries\Classes\GetWBException;
 use App\Libraries\Classes\WeiboContent;
+use Illuminate\Support\Facades\Redis as Redis;
 
 
 /**
@@ -304,4 +305,6 @@ abstract class GetWeiboHandler
 			static::$errorFile = "wbHtml/".static::$uid."/".static::$mid."/".static::$getType."/error_".static::$getPage;
 		}
 	}
+	
+
 }

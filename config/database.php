@@ -64,6 +64,8 @@ return [
             'prefix' => '',
             'strict' => false,
             'engine' => null,
+        		
+//         	'host' => '192.168.0.109',
         ],
 
         'pgsql' => [
@@ -109,18 +111,32 @@ return [
         'cluster' => false,
 
         'default' => [
-            'host' => env('REDIS_HOST', 'localhost'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', 6379),
+         'host' => env('REDIS_HOST', 'localhost'),
+//         	'password' => env('REDIS_PASSWORD', null),
+            
+//         	'host' => '192.168.0.109',
+            'password' => 'daweilang',
+            
+        	'port' => env('REDIS_PORT', 6379),
             'database' => 0,
         ],
 
+    	'user' => [
+    		'host' => env('REDIS_HOST', 'localhost'),
+//    			'host' => '192.168.0.109',
+ 			'password' => 'daweilang',
+			'port' => env('REDIS_PORT', 6379),
+			'database' => 1,
+    	],
+    		
     	'fans' => [
             'host' => env('REDIS_HOST', 'localhost'),
-            'password' => env('REDIS_PASSWORD', null),
+            'password' => 'daweilang',
             'port' => env('REDIS_PORT', 6379),
-            'database' => 1,
+            'database' => 2,
         ],
+
+
 
     ],
 

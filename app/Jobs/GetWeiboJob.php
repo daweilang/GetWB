@@ -59,8 +59,8 @@ class GetWeiboJob extends Job implements ShouldQueue
 			//分析微博的内容录入数据
 			$getContent->explainWeibo($content);
 			
-			$array = ['forward', 'comment', 'like'];
-// 			$array = [];
+// 			$array = ['forward', 'comment', 'like'];
+			$array = ['like'];
 			
 			foreach($array as $type){
 				$totalName = $type."_total";

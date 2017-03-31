@@ -16,17 +16,20 @@ use App\Libraries\Classes\GetWeiboHandler;
 
 use App\Models\Wb_like;
 use App\Models\Wb_like_job;
-use App\Models\Wb_user;
 
 use App\Jobs\GetLikeContentJob;
 use App\Libraries\Classes\GetWBException;
 use Symfony\Component\DomCrawler\Crawler;
+
+use App\Libraries\Classes\TraitWBUser;
 
 use Storage;
 use Log;
 
 class GetLike extends GetWeiboHandler
 {	
+	
+	use TraitWBUser;
 	
 	/**
 	 * 设置队列名
@@ -99,9 +102,12 @@ class GetLike extends GetWeiboHandler
 				}
 				
 				//储存用户信息
-				$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
+				
+				
+				$wbUser = $this->userExists($uid);
+// 				$wbUser = Wb_user::firstOrNew(['uid'=>$uid]);
 				//后台执行抓取用户信息程序
-				if(!$wbUser->exists){
+				if(is_object($wbUser)){
 					$wbUser->uid = $uid;
 					$href = $row->filter('a')->attr('href');
 					if(preg_match('/\/u\/(\d+)/', $href, $m)){
@@ -112,7 +118,8 @@ class GetLike extends GetWeiboHandler
 					}				
 					$wbUser->username = $row->filter('a>img')->attr('title');
 					$wbUser->photo_url = $row->filter('a>img')->attr('src');
-					$wbUser->save();
+					$wbUser->save();					
+					$this->insertRedisUser($uid);
 				}		
 
 				$page_total++;
