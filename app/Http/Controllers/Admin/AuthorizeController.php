@@ -96,7 +96,7 @@ class AuthorizeController extends Controller
        		
     		header('Content-type:text/html;charset=utf-8');
     		echo "<script type='text/javascript' src='/js/jquery-1.10.2.min.js'></script>\n";
-    		echo "<script type='text/javascript' src='/js/prelogin.js'></script>";
+    		echo "<script type='text/javascript' src='/js/ssologin.js'></script>";
     		echo <<<EOT
 <script type="text/javascript">
 	function getpass(pwd,servicetime,nonce,rsaPubkey){
