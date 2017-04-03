@@ -18,7 +18,7 @@
 		<div class="col-lg-10">
 			<h2>Data Tables</h2>
 			<ol class="breadcrumb">
-				<li><a href="index.html">平台首页</a></li>
+				<li><a href="{{ url('admin') }}">平台首页</a></li>
 				<li><a>数据统计</a></li>
 				<li class="active"><strong>微博数据</strong></li>
 			</ol>

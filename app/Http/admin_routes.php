@@ -22,21 +22,21 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::get('crawler', 'TestController@exampleCrawler');
 	
 	/* ================== weibo ================== */
+	Route::get('weibo', 'WeiboInfoController@index');
 	Route::resource('weibo', 'WeiboInfoController');
 	Route::get('weibo/test/{mid}', 'WeiboInfoController@exampleTest');
 
 	/* ================== users ================== */
+	Route::get('users', 'WeiboUsersController@index');
 	Route::resource('users', 'WeiboUsersController');
-// 	Route::resource('users/test/{mid}', 'WeiboUsersController@exampleTest');
 
 	/* ================== fans ================== */
 	Route::get('fans/{uid}', 'WeiboFansController@index');
 	Route::get('fans/settingJob/{uid}', 'WeiboFansController@settingJob');
 	
-	/* ================== 微博评论任务 ================== */
-	Route::get('commentJob/{mid}', 'CommentJobController@index');
-	Route::get('commentJob/setting/{mid}', 'CommentJobController@Setting');
-	Route::get('commentJob/settingJob/{mid}', 'CommentJobController@settingJob');
+	/* ================== 任务日志 ================== */
+	Route::get('jobLogs/{type}/{mid}', 'JobLogsController@index');
+	Route::get('jobLogs/settingJob/{type}/{mid}', 'JobLogsController@settingJob');
 	
 	/* ================== 获得微博授权相关 ================== */
 	Route::get('authorize', 'AuthorizeController@index');
@@ -60,13 +60,12 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Admin', 'prefix' => 'admin
 	Route::get('authorize/fail', function(){return view('admin/weibo/fail',['groupName' => 'admin']);});
 
 	
-	/* ================== 完全分析用户数据系统 ================== */
-	Route::resource('complete', 'CompleteController');
+	/* ================== 完全分析用户数据系统 ================== */	
 	Route::get('complete/{uid}/weibos', 'CompleteController@weibos');
 	Route::get('complete/settingWB/{uid}', 'CompleteController@settingWB');
 	Route::get('complete/setGetAll/{uid}/{mid?}', 'CompleteController@setGetAll');
 	Route::get('complete/test/{uid}', 'CompleteController@exampleTest');
-	
+	Route::resource('complete', 'CompleteController');
 	
 	/* ================== 返回提示信息 ================== */
 	Route::get('message/{status?}/{msg?}', function($status=null, $msg=''){		

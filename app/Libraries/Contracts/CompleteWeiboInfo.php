@@ -140,9 +140,7 @@ class CompleteWeiboInfo
 			$mid = $m['1'];
 
 			$wb = new WeiboContent();
-			
-			
-			
+					
 			$this->weibo->title = $title;
 			$this->weibo->mid = $mid;
 			$this->weibo->comment_total = $pageCommnetData['count'];

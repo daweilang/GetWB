@@ -18,7 +18,7 @@
 		<div class="col-lg-10">
 			<h2>Data Tables</h2>
 			<ol class="breadcrumb">
-				<li><a href="index.html">平台首页</a></li>
+				<li><a href="{{ url('admin') }}">平台首页</a></li>
 				<li><a>数据统计</a></li>
 				<li class="active"><strong>微博数据</strong></li>
 			</ol>
@@ -27,7 +27,21 @@
 	</div>
 
 	<div class="wrapper wrapper-content animated fadeInRight">
-
+		<div class="search-form">
+			<div class="col-sm-6">
+                            <form action="{{ url('admin/weibo') }}" method="get">
+                                <div class="input-group">
+                                    <input placeholder="按mid查找微博" name="mid" class="form-control input-lg" type="text" value='{{ $mid }}'>
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-lg btn-primary" type="submit">
+                                            搜索
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            <br>
+        	</div>
+        </div>
 		<div class="row">
             <div class="col-sm-12">
                 <div class="ibox float-e-margins">
@@ -41,14 +55,14 @@
 							<table class="table table-striped table-bordered table-hover  dataTable" id="editable" aria-describedby="editable_info">
 								<thead>
 									<tr role="row">
-										<th class="sorting_asc" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 150px;">任务名</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;">mid</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;">任务状态</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 120px;">微博题目</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;" aria-label="评论数：激活排序列升序">评论数</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 100px;" aria-label="攒：激活排序列升序">赞</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 160px;" aria-label="更新时间：激活排序列升序">更新时间</th>
-										<th class="sorting" tabindex="0" aria-controls="editable" rowspan="1" colspan="1" style="width: 80px;">操作</th>
+										<th class="sorting_asc" tabindex="0" rowspan="1" colspan="1" style="width: 140px;">任务名</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 110px;">mid</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 130px;">微博题目</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 80px;">评论</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 80px;">转发</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 80px;">赞</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 130px;">更新时间</th>
+										<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 80px;">操作</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -58,22 +72,27 @@
 
 										<td class="sorting_1">{{ $weibo->wb_name }}</a></td>
 										<td class="center">{{ $weibo->mid }}</td>
-										<td class="center">{{ $weibo->status }}</td>
-										<td class="center "><a href="{{ $weibo->wb_url }}" target="_blank">{{ $weibo->title }}</a></td>
-										<td class="center ">
+										<td class="center"><a href="{{ $weibo->wb_url }}" target="_blank">{{ $weibo->title }}</a></td>
+										<td class="center">
 											@if($weibo->mid) 
-												<a href="{{ url('admin/commentJob/'.$weibo->mid) }}">{{ $weibo->comment_total }}</a>
+												<a href="{{ url('admin/jobLogs/comment/'.$weibo->mid) }}">{{ $weibo->comment_total }}</a>
 											@else
 											{{ $weibo->comment_total }}
 											@endif</td>
-										<td class="center ">
+										<td class="center">
 											@if($weibo->mid) 
-												<a href="{{ url('admin/likeJob/'.$weibo->mid) }}">{{ $weibo->like_total }}</a>
+												<a href="{{ url('admin/jobLogs/forward/'.$weibo->mid) }}">{{ $weibo->forward_total }}</a>
+											@else
+											{{ $weibo->forward_total }}
+											@endif</td>
+										<td class="center">
+											@if($weibo->mid) 
+												<a href="{{ url('admin/jobLogs/like/'.$weibo->mid) }}">{{ $weibo->like_total }}</a>
 											@else
 											{{ $weibo->like_total }}
 											@endif</td>
-										<td class="center ">{{ $weibo->updated_at }}</td>
-										<td class="center "><a href="{{ url('admin/weibo/'.$weibo->id.'/edit') }}" class="btn btn-success">编辑</a></td>
+										<td class="center">{{ $weibo->updated_at }}</td>
+										<td class="center"><a href="{{ url('admin/weibo/'.$weibo->id.'/edit') }}" class="btn btn-success">编辑</a></td>
 									</tr>
 									@endforeach
 								</tbody>

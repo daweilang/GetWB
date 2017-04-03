@@ -22,7 +22,7 @@
                 </div>
                 <div class="panel-heading">
                 	微博Cookie是访问微博页面的基础
-                	<br>Cookie失效后需要重新获得授权
+                	<br>Cookie失效后需要重新获得授权 &nbsp;&nbsp;<a href="{{ url('admin/authorize/test') }}" class="btn">测试微博授权</a>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/admin/authorize/setConfig') }}">

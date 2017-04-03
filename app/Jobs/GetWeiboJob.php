@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Weibo;
 use App\Libraries\Classes\SetJobLog;
 use App\Libraries\Contracts\GetWeiboInfo;
+use function GuzzleHttp\json_decode;
 
 class GetWeiboJob extends Job implements ShouldQueue
 {
@@ -59,8 +60,7 @@ class GetWeiboJob extends Job implements ShouldQueue
 			//分析微博的内容录入数据
 			$getContent->explainWeibo($content);
 			
-// 			$array = ['forward', 'comment', 'like'];
-			$array = ['like'];
+			$array = json_decode($this->weibo->wb_scope, true);
 			
 			foreach($array as $type){
 				$totalName = $type."_total";

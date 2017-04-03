@@ -78,7 +78,8 @@ class CompleteWeiboJob extends Command
     		foreach($this->weibo as $v){
     			
 		    	if($v->mid)
-		    	{	    		
+		    	{	 
+		    		//设置抓取范围
 		    		$array = ['forward', 'comment', 'like'];
 		    		foreach($array as $type){
 		    			$totalName = $type."_total";

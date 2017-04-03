@@ -202,7 +202,7 @@ class GetComment extends GetWeiboHandler
 	}
 	
 	
-	public function setThisUrl($mid, $page){
+	public static function setThisUrl($mid, $page){
 		//评论页地址
 		if(empty(static::$thisUrl)){
 			static::$thisUrl = sprintf(config('weibo.WeiboInfo.commentUrl'), static::$mid, $page);

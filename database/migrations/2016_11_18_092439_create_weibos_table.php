@@ -24,6 +24,7 @@ class CreateWeibosTable extends Migration
     		$table->integer('comment_total')->unsigned()->default(0);
     		$table->integer('like_total')->unsigned()->default(0);
     		$table->integer('forward_total')->unsigned()->default(0);
+    		$table->string('wb_scope', '150')->comment('初始的抓取范围');
     		$table->timestamp('wb_created')->default("0000-00-00 00:00:00")->comment('微博发布时间');
     		$table->tinyInteger('status')->unsigned()->default(0);
     		$table->timestamps();

@@ -204,7 +204,7 @@ class GetForward extends GetWeiboHandler
 	 * {@inheritDoc}
 	 * @see \App\Libraries\Classes\GetWeiboHandler::setThisUrl()
 	 */
-	public function setThisUrl($mid, $page){
+	public static function setThisUrl($mid, $page){
 		if(empty(static::$thisUrl)){
 			//评论页地址
 			include app_path().'/Libraries/function/helpers.php';

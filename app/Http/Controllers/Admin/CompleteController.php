@@ -128,7 +128,7 @@ class CompleteController extends Controller
 //     	var_dump($weibos);
     	$count = $weibos->total();
     	
-    	return view('admin/complete/weibos', ['userinfo' => $userinfo, 'weibos' => $weibos, 'count'=>$count]);
+    	return view('admin/complete/weibos', ['userinfo' => $userinfo, 'weibos' => $weibos, 'count'=>$count, 'mid'=>$mid]);
     }
     
     

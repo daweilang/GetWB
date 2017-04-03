@@ -1,8 +1,8 @@
 <?php
 
 /**
- *  GetComment.php 抓取评论相关
- *  该程序为旧接口，评论和评论回复一起输出，没有父子关系
+ *  GetUserInfo.php 抓取用户粉丝
+ *  该程序为旧接口，抓取cn数据，已弃用
  * @copyright			(C) daweilang
  * @license				https://github.com/daweilang/
  *

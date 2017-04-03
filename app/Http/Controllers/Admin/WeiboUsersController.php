@@ -37,10 +37,17 @@ class WeiboUsersController extends Controller
 	}
 	
     //
-    public function index()
+    public function index(Request $request)
     {
-    	return view('admin/users/index')->withWeibos(Wb_user::paginate(15));
+    	if ($uid = $request->input('uid')){
+    		$users = Wb_user::where('uid', $uid)->paginate(30);
+    	}
+    	else{
+    		$users = Wb_user::paginate(30);
+    	}
+    	return view('admin/users/index', ['weibos'=>$users, 'uid'=>$uid]);
     }
+    
     
     public function create()
     {
