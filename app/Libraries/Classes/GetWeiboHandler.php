@@ -7,7 +7,6 @@ use Storage;
 use Symfony\Component\DomCrawler\Crawler;
 use App\Libraries\Classes\GetWBException;
 use App\Libraries\Classes\WeiboContent;
-use Illuminate\Support\Facades\Redis as Redis;
 
 
 /**
@@ -228,7 +227,7 @@ abstract class GetWeiboHandler
 		$array = json_decode($content, true);
 		if(!is_array($array) || $array['code'] !== '100000'){
 			Storage::put($errorFile, $content);
-			Log::error("无法获取接口数据", ['code'=>$array['code']]);
+			Log::error("无法获取接口数据", ['url'=>static::$thisUrl]);
 			throw new GetWBException("无法获取接口，请检查获取结果", 3001);
 		}
 		return $array;

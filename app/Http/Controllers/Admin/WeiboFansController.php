@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Wb_user;
 use App\Models\Wb_fans;
 
 use App\Jobs\GetFansJob;
-use App\Libraries\Contracts\GetWeiboInfo;
 
 /**
  * 抓取微博用户粉丝系统

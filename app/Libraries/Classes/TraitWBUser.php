@@ -16,7 +16,7 @@ trait TraitWBUser
 	 * 是否使用redis
 	 * @var string
 	 */
-	private $useRedis = true;
+	private $_useRedis = true;
 	
 	
 	/**
@@ -31,7 +31,7 @@ trait TraitWBUser
 	 * @param unknown $mid
 	 */
 	public function userExists($uid){
-		if($this->useRedis){
+		if($this->_useRedis){
 			$redis = Redis::connection("user");
 			if($redis->exists("uid:".$uid)){
 				return true;
@@ -46,7 +46,7 @@ trait TraitWBUser
 	 * @param unknown $mid
 	 */
 	public function insertRedisUser($uid){
-		if($this->useRedis){
+		if($this->_useRedis){
 			$redis = Redis::connection("user");
 			$redis->setnx("uid:".$uid, 0);
 		}

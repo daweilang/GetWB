@@ -24,10 +24,11 @@
                         <input type="text" name="wb_url" class="form-control" required="required" placeholder="请输入微博地址" value="{{ $weibo->wb_url }}">
                         </div>
                         <br>
-                        <div class="col-sm-9"  style="margin-bottom: 20px;">
+                        <div class="col-sm-10"  style="margin-bottom: 20px;">
                         	<strong>提交微博地址后，平台会设置抓取微博信息的队列任务，之后设置抓取赞、评论和转发全部数据的任务</strong>
                         	<p class="form-control-static">
-                        		如果微博数据量较大，全部任务执行时间较长，可以选择设置抓取范围，赞、评论和转发的任务管理可以重新设置抓取范围
+                        		如果微博数据量较大，全部任务执行时间较长，可以选择设置抓取范围，<br>
+                        		赞、评论和转发的任务管理可以重新设置抓取任务
                         	</p>
                         </div>
                         <br>

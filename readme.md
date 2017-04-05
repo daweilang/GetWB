@@ -7,7 +7,8 @@
 # 相关文档
 > [PHP 基于laravel框架获取微博数据之一 模拟新浪微博登录](https://github.com/daweilang/GetWeiBoCookie/issues/2)
 对使用php模拟登录新浪微博的介绍<br/>
-
+> [PHP 基于laravel框架获取微博数据之二 用户数据的使用 ](https://github.com/daweilang/GetWeiBo/issues/1)
+对抓取数据使用的一些设想<br/>
 
 =================================================================================
 
