@@ -18,6 +18,9 @@ class Kernel extends ConsoleKernel
 		Commands\CompleteWeiboJob::class,
 		Commands\RetryWBException::class,
 		Commands\SyncUsersRedis::class,
+
+//     	Commands\SendEmails::class,
+    		
     ];
 
     /**

@@ -4,7 +4,7 @@ namespace App\Libraries\Classes;
 use Illuminate\Support\Facades\Redis as Redis;
 
 /**
- * 判断微博用户的相关操作
+ * 判断微博用户是否抓取的相关操作
  * @author daweilang
  *
  */
@@ -16,7 +16,7 @@ trait TraitWBUser
 	 * 是否使用redis
 	 * @var string
 	 */
-	private $_useRedis = true;
+	private $_useRedis = config('database.uesRedisStorageUser');
 	
 	
 	/**

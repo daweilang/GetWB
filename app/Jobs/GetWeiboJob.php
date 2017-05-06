@@ -61,13 +61,14 @@ class GetWeiboJob extends Job implements ShouldQueue
 			$getContent->explainWeibo($content);
 			
 			$array = json_decode($this->weibo->wb_scope, true);
-			
-			foreach($array as $type){
-				$totalName = $type."_total";
-				if($this->weibo->$totalName > 0){
-					$this->SetTypeJob($type);
+			if(is_array($array)){
+				foreach($array as $type){
+					$totalName = $type."_total";
+					if($this->weibo->$totalName > 0){
+						$this->SetTypeJob($type);
+					}
 				}
-			}		
+			}
 			return true;
 		}
 		else{
