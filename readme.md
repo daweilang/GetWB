@@ -1,3 +1,88 @@
+# 使用说明
+
+....
+composer install
+....
+
+php版本5.6以上
+lnmp环境下测试可以直接安装，
+
+Laravel使用composer可以直接安装，
+开发过程发现了一些Laravel5.2存在的问题，准备5.5发布时进行升级
+composer工具里面主要使用了"symfony/dom-crawler"的爬虫包解析html，请注意安装
+
+之前在“app/Console/Kernel.php”中自定义了几个命令，造成安装时“php artisan optimize”报错，
+主要是因为composer安装程序后会进行优化，此时相关数据表尚未建立，优化程序无法执行
+已关闭自定义程序，测试安装正常。
+程序为抓取微博相关程序，可做参考
+
+
+修改.env中数据库配置
+....
+php artisan migrate 
+....
+进行数据迁移
+
+注册管理用户后，打开"/admin"地址
+
+微博授权通过后在 统计任务中增加微博地址，
+....
+php artisan queue:listen
+....
+执行Laravel队列命令，后台执行抓取任务，
+Laravel队列是微博数据抓取的基础功能
+建议使用supervisord.log设置多进程抓取，但请设置抓取时间间隔
+
+“综合分析”功能为抓取用户的全部数据，需要使用自定义命令先抓取用户微博，同时设置抓取微博的相关数据，
+不建议抓取数据量巨大的微博用户信息。。。
+
+
+### 缓存设置
+
+抓取近亿级数据后，以mysql为数据存储基础已经不能满足数据储存需求，不过暂时没有时间研究使用其他储存方案
+
+有两个功能使用了redis缓存，队列和微博用户数据的储存
+config的queue.php文件中可以直接设置使用队列的方式，
+...
+'default' => env('QUEUE_DRIVER', 'database'),
+//'default' => "redis",
+...
+
+微博数据抓取的过程积累的大量用户数据，通过redis数据库储存用户uid判断用户是否抓取，以减少对mysql用户表的查询。
+
+如需使用redis，请设置database中的redis配置，队列redis和用户存储redis使用两个redis库，
+请注意修改相关配置
+....
+	'default' => [
+			// 'host' => env('REDIS_HOST', 'localhost'),
+			// 'password' => env('REDIS_PASSWORD', null),
+						
+				'host' => '192.168.0.109',
+				'password' => 'daweilang',					
+				'port' => env ( 'REDIS_PORT', 6379 ),
+				'database' => 0 
+			],
+				
+	'user' => [
+			// 'host' => env('REDIS_HOST', 'localhost'),
+			   'host' => '192.168.0.109',
+			   'password' => 'daweilang',
+				'port' => env ( 'REDIS_PORT', 6379 ),
+				'database' => 1 
+		],
+....
+
+并修改相关用户储存设置
+....		
+	/*
+    |--------------------------------------------------------------------------
+    | 是否使用redis缓存用户信息
+    | 开启后使用user链接redis的database 1
+    |--------------------------------------------------------------------------
+	*/	
+	'uesRedisStorageUser' => true,
+....
+
 # 项目说明：
 
 使用Laravel框架，抓取微博数据的进行分析<br/>
