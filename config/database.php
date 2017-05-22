@@ -104,37 +104,36 @@ return [
     |
     */
 
-    'redis' => [
-
-        'cluster' => false,
-
-        'default' => [
-//          'host' => env('REDIS_HOST', 'localhost'),
-//         	'password' => env('REDIS_PASSWORD', null),
-            
-        	'host' => '192.168.0.109',
-            'password' => 'daweilang',
-            
-        	'port' => env('REDIS_PORT', 6379),
-            'database' => 0,
-        ],
-
-    	'user' => [
-//     		'host' => env('REDIS_HOST', 'localhost'),
-   			'host' => '192.168.0.109',
- 			'password' => 'daweilang',
-			'port' => env('REDIS_PORT', 6379),
-			'database' => 1,
-    	],
-    		
-    	'fans' => [
-            'host' => env('REDIS_HOST', 'localhost'),
-            'password' => 'daweilang',
-            'port' => env('REDIS_PORT', 6379),
-            'database' => 2,
-        ],
-
-    ],
+    'redis' => [ 
+				
+				'cluster' => false,
+				
+				'default' => [
+						// 'host' => env('REDIS_HOST', 'localhost'),
+						// 'password' => env('REDIS_PASSWORD', null),
+						
+						'host' => '192.168.0.109',
+						'password' => 'daweilang',					
+						'port' => env ( 'REDIS_PORT', 6379 ),
+						'database' => 0 
+				],
+				
+				'user' => [
+						// 'host' => env('REDIS_HOST', 'localhost'),
+						'host' => '192.168.0.109',
+						'password' => 'daweilang',
+						'port' => env ( 'REDIS_PORT', 6379 ),
+						'database' => 1 
+				],
+				
+				'fans' => [ 
+						'host' => env ( 'REDIS_HOST', 'localhost' ),
+						'password' => 'daweilang',
+						'port' => env ( 'REDIS_PORT', 6379 ),
+						'database' => 2 
+				] 
+		]
+		,
 		
 		
 	/*
@@ -143,6 +142,6 @@ return [
     | 开启后使用user链接redis的database 1
     |--------------------------------------------------------------------------
 	*/	
-	'uesRedisStorageUser' => 'true',
+	'uesRedisStorageUser' => false,
 
 ];

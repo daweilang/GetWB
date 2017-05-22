@@ -15,9 +15,13 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
 		
-		Commands\CompleteWeiboJob::class,
-		Commands\RetryWBException::class,
-		Commands\SyncUsersRedis::class,
+    	/**
+    	 * 自定义命令，安装系统需要关闭
+    	 * 命令详情见command下程序
+    	 */
+// 		Commands\CompleteWeiboJob::class,
+// 		Commands\RetryWBException::class,
+// 		Commands\SyncUsersRedis::class,
 
 //     	Commands\SendEmails::class,
     		

@@ -11,19 +11,13 @@ use Illuminate\Support\Facades\Redis as Redis;
 
 
 trait TraitWBUser
-{
-	/**
-	 * 是否使用redis
-	 * @var string
-	 */
-	private $_useRedis = config('database.uesRedisStorageUser');
-	
+{	
 	
 	/**
 	 * 判断redis是否可用
 	 */
 	public function redisConnect(){
-// 		return $this->useRedis = false;
+		
 	}
 	
 	/**
@@ -31,7 +25,7 @@ trait TraitWBUser
 	 * @param unknown $mid
 	 */
 	public function userExists($uid){
-		if($this->_useRedis){
+		if(config('database.uesRedisStorageUser')){
 			$redis = Redis::connection("user");
 			if($redis->exists("uid:".$uid)){
 				return true;
@@ -46,7 +40,7 @@ trait TraitWBUser
 	 * @param unknown $mid
 	 */
 	public function insertRedisUser($uid){
-		if($this->_useRedis){
+		if(config('database.uesRedisStorageUser')){
 			$redis = Redis::connection("user");
 			$redis->setnx("uid:".$uid, 0);
 		}
