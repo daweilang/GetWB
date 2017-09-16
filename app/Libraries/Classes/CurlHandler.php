@@ -73,7 +73,8 @@ abstract class CurlHandler
 		
 		$info = curl_getinfo($ch);
 // 		var_dump($info);
-// 		curl_close($ch);
+		var_export(curl_error($ch));
+		curl_close($ch);
 		return $data;
 	}
 	
