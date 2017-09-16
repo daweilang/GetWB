@@ -65,6 +65,7 @@ abstract class CurlHandler
 	
 		//执行
 		$data = curl_exec($ch);
+		var_export($data);
 		
 		if (curl_errno($ch) > 0) {
 			$savePath = 'curl.log';
@@ -72,7 +73,7 @@ abstract class CurlHandler
 		}
 		
 		$info = curl_getinfo($ch);
-// 		var_dump($info);
+		var_dump($info);
 		var_export(curl_error($ch));
 		curl_close($ch);
 		return $data;
