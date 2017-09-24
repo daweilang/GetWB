@@ -109,19 +109,15 @@ return [
 				'cluster' => false,
 				
 				'default' => [
-						// 'host' => env('REDIS_HOST', 'localhost'),
-						// 'password' => env('REDIS_PASSWORD', null),
-						
-						'host' => '192.168.0.109',
-						'password' => 'daweilang',					
+						'host' => env('REDIS_HOST', 'localhost'),
+						'password' => env('REDIS_PASSWORD', null),					
 						'port' => env ( 'REDIS_PORT', 6379 ),
 						'database' => 0 
 				],
 				
 				'user' => [
-						// 'host' => env('REDIS_HOST', 'localhost'),
-						'host' => '192.168.0.109',
-						'password' => 'daweilang',
+						'host' => env('REDIS_HOST', 'localhost'),
+						'password' => env('REDIS_PASSWORD', null),
 						'port' => env ( 'REDIS_PORT', 6379 ),
 						'database' => 1 
 				],

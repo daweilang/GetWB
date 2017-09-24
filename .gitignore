@@ -2,3 +2,5 @@
 vendor
 storage/app
 storage/logs
+.env
+supervisord.log
