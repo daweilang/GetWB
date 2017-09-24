@@ -23,6 +23,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use App\Libraries\Classes\TraitWBUser;
 
 use Storage;
+use Log;
 
 
 class GetForward extends GetWeiboHandler
